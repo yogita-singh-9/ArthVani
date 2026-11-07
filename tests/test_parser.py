@@ -7,6 +7,22 @@ cases: the test only checks that needs_review==True.
 
 No API calls are made in this file. Pure function tests only.
 
+──────────────────────────────────────────────────────────────────────────────
+ACCURACY DISCLAIMER
+──────────────────────────────────────────────────────────────────────────────
+These tests verify *parser logic* only.  sentences.csv contains:
+  • 2 rows from real Gnani STT output (source="real")
+  • 28 hand-crafted synthetic sentences (source="synthetic")
+
+A "pass" here means the parser correctly handled the transcript string.
+It is NOT a measure of real-world end-to-end accuracy, which depends on
+what the live Gnani STT actually returns for a given audio recording.
+
+Real-world accuracy will be measured separately in noise_eval.py using
+actual recordings (clean, background-noise, 8 kHz phone-quality) sent
+through the live Gnani Prisma STT API.
+──────────────────────────────────────────────────────────────────────────────
+
 Run with:
     pytest tests/test_parser.py -v
 """
@@ -210,42 +226,4 @@ def test_incomplete_needs_review():
     assert result["warnings"]
 
 
-# ── Summary reporter: print pass count per language ──────────────────────────
-
-def pytest_terminal_summary(terminalreporter, exitstatus, config):
-    """After all tests run, print pass/fail per language from the CSV rows."""
-    hi_pass = hi_fail = en_pass = en_fail = 0
-    for row in ROWS:
-        if _is_incomplete(row):
-            continue   # incomplete rows counted separately
-        lang = row["language"].strip()
-        # We can't easily hook into per-parametrize results here,
-        # so we just re-run parse() silently and tally.
-        stt = {"transcript": row["transcript"], "literal": row["literal"]}
-        try:
-            r = parse(stt, lang)
-            exp_item  = _str_or_none(row["item"])
-            exp_price = _float_or_none(row["price"])
-            exp_qty   = _float_or_none(row["quantity"])
-            ok = True
-            if exp_item and r["item"] and r["item"].strip() != exp_item:
-                ok = False
-            if exp_qty and r["quantity"] and not math.isclose(r["quantity"], exp_qty, rel_tol=1e-4):
-                ok = False
-            if exp_price and r["price"] and not math.isclose(r["price"], exp_price, rel_tol=1e-4):
-                ok = False
-        except Exception:
-            ok = False
-
-        if lang == "hi":
-            if ok: hi_pass += 1
-            else:  hi_fail += 1
-        else:
-            if ok: en_pass += 1
-            else:  en_fail += 1
-
-    print(f"\n── Parser accuracy summary ──────────────────────────")
-    print(f"  Hindi   : {hi_pass} passed, {hi_fail} failed  ({hi_pass+hi_fail} tested)")
-    print(f"  English : {en_pass} passed, {en_fail} failed  ({en_pass+en_fail} tested)")
-    print(f"────────────────────────────────────────────────────")
 

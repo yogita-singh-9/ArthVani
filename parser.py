@@ -453,8 +453,9 @@ def parse(stt_result: dict, language: str) -> dict:
     #      derive price = total / qty
     #   d) Otherwise: first number = qty, second number = price
 
-    qty_span   = None
-    price_span = None
+    qty_span    = None
+    price_span  = None
+    total_span  = None       # the span whose value became total_spoken
     total_spoken = None      # a total explicitly said in the sentence
 
     for sp in num_spans:
@@ -467,6 +468,7 @@ def parse(stt_result: dict, language: str) -> dict:
         prev = sp["start"] - 1
         if prev >= 0 and prev in total_indices:
             total_spoken = sp["value"]
+            total_span   = sp          # remember so fallback won't reuse it
             continue
 
         # Rule (b): followed or preceded by a currency word
@@ -490,20 +492,27 @@ def parse(stt_result: dict, language: str) -> dict:
 
     # ── If no price found yet but we have ≥2 numbers, use positional rule ────
     # First number = qty, second number = price (handles the STT mis-hear case
-    # "50 kilo rice 60 kilo per kg" where "60" is the second number)
+    # "50 kilo rice 60 kilo per kg" where "60" is the second number).
+    # Always skip total_span — that number is already accounted for.
+    _used = {id(s) for s in (qty_span, price_span, total_span) if s is not None}
+
     if qty_span is None and price_span is None and len(num_spans) >= 2:
-        qty_span   = num_spans[0]
-        price_span = num_spans[1]
+        candidates = [s for s in num_spans if id(s) not in _used]
+        if len(candidates) >= 2:
+            qty_span   = candidates[0]
+            price_span = candidates[1]
+        elif len(candidates) == 1:
+            qty_span = candidates[0]
     elif qty_span is None and price_span is not None:
         # Only a price found — first remaining span is qty
         for sp in num_spans:
-            if sp is not price_span:
+            if id(sp) not in _used:
                 qty_span = sp
                 break
-    elif qty_span is not None and price_span is None:
-        # Only qty found so far — next span is price
+    elif qty_span is not None and price_span is None and total_span is None:
+        # Only qty found so far, and no total word captured — next span is price
         for sp in num_spans:
-            if sp is not qty_span:
+            if id(sp) not in _used:
                 price_span = sp
                 break
 

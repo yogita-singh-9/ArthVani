@@ -23,3 +23,7 @@ num2words>=0.5.13          # English number words; Hindi uses a hand-built table
 pytest>=8.0.0              # unit tests (parser, db)
 pydub>=0.25.1              # mix noise, resample audio for noise_eval.py
 numpy>=1.26.0              # signal processing in noise_eval.py
+
+# --- Python 3.13+ compatibility ---
+# audioop was removed in Python 3.13; this backport restores it for pydub.
+audioop-lts>=0.2.2; python_version >= "3.13"

@@ -1,33 +1,31 @@
-language,transcript,literal,item,quantity,unit,price,total,entry_type
-hi,"50 किलो चावल ₹60 किलो","पचास किलो चावल साठ रुपए किलो",चावल,50,kg,60,3000,sale
-en,"50 kilo rice 60 kilo per kg","fifty kilo rice sixty kilo per kg",rice,50,kg,60,3000,sale
-hi,"5 किलो आलू 20 रुपये किलो","पाँच किलो आलू बीस रुपये किलो",आलू,5,kg,20,100,sale
-hi,"2 लीटर दूध 55 रुपये लीटर","दो लीटर दूध पचपन रुपये लीटर",दूध,2,litre,55,110,sale
-hi,"12 नग साबुन 30 रुपये नग","बारह नग साबुन तीस रुपये नग",साबुन,12,piece,30,360,sale
-hi,"1 दर्जन केला ₹60 दर्जन","एक दर्जन केला साठ रुपये दर्जन",केला,1,dozen,60,60,sale
-hi,"3 पैकेट नमक 20 रुपये पैकेट","तीन पैकेट नमक बीस रुपये पैकेट",नमक,3,packet,20,60,sale
-hi,"10 किलो चीनी 42 रुपये किलो","दस किलो चीनी बयालीस रुपये किलो",चीनी,10,kg,42,420,sale
-hi,"20 किलो गेहूं 22 रुपये किलो","बीस किलो गेहूं बाईस रुपये किलो",गेहूं,20,kg,22,440,sale
-hi,"3 किलो प्याज 25 रुपये किलो","तीन किलो प्याज पच्चीस रुपये किलो",प्याज,3,kg,25,75,sale
-hi,"dedh kilo tamatar 40 rupaye kilo","dedh kilo tamatar chaalees rupaye kilo",tamatar,1.5,kg,40,60,sale
-hi,"dhai kilo pyaaz 30 rupaye kilo","dhai kilo pyaaz tees rupaye kilo",pyaaz,2.5,kg,30,75,sale
-hi,"aadha kilo adrak 80 rupaye kilo","aadha kilo adrak assi rupaye kilo",adrak,0.5,kg,80,40,sale
-hi,"sava kilo makkhan 500 rupaye kilo","sava kilo makkhan paanch sau rupaye kilo",makkhan,1.25,kg,500,625,sale
-hi,"पचास किलो चावल साठ रुपए किलो","पचास किलो चावल साठ रुपए किलो",चावल,50,kg,60,3000,sale
-hi,"डेढ़ किलो टमाटर चालीस रुपये किलो","डेढ़ किलो टमाटर चालीस रुपये किलो",टमाटर,1.5,kg,40,60,sale
-hi,"ढाई किलो प्याज तीस रुपये किलो","ढाई किलो प्याज तीस रुपये किलो",प्याज,2.5,kg,30,75,sale
-hi,"5 किलो साबुन kharida 30 रुपये किलो","paanch kilo sabun kharida tees rupaye kilo",साबुन,5,kg,30,150,purchase
-hi,"2 पैकेट नोटबुक ₹40 पैकेट","दो पैकेट नोटबुक चालीस रुपये पैकेट",नोटबुक,2,packet,40,80,sale
-hi,"10 नग रिचार्ज कूपन 50 रुपये नग","दस नग रिचार्ज कूपन पचास रुपये नग",रिचार्ज कूपन,10,piece,50,500,sale
-en,"five kg sugar forty rupees per kg","five kg sugar forty rupees per kg",sugar,5,kg,40,200,sale
-en,"two litre milk fifty five rupees per litre","two litre milk fifty five rupees per litre",milk,2,litre,55,110,sale
-en,"twelve pieces soap thirty rupees each","twelve pieces soap thirty rupees each",soap,12,piece,30,360,sale
-en,"one dozen banana sixty rupees per dozen","one dozen banana sixty rupees per dozen",banana,1,dozen,60,60,sale
-en,"three kilo onion twenty five rupees kilo","three kilo onion twenty five rupees kilo",onion,3,kg,25,75,sale
-en,"ten kilo flour thirty rupees kilo","ten kilo flour thirty rupees kilo",flour,10,kg,30,300,sale
-en,"5 kg notebook bought 20 rupees each","five kg notebook bought twenty rupees each",notebook,5,kg,20,100,purchase
-en,"half kilo ginger eighty rupees kilo","half kilo ginger eighty rupees kilo",ginger,0.5,kg,80,40,sale
-hi,"चावल बेचा","चावल बेचा",,,,,, sale
-en,"fifty rupees","fifty rupees",,,,,,sale
-en,"rice kilo","rice kilo",,,,,, sale
-
+language,transcript,literal,item,quantity,unit,price,total,entry_type,source
+hi,"50 किलो चावल ₹60 किलो","पचास किलो चावल साठ रुपए किलो",चावल,50,kg,60,3000,sale,real
+en,"50 kilo rice 60 kilo per kg","fifty kilo rice sixty kilo per kg",rice,50,kg,60,3000,sale,real
+hi,"5 किलो आलू 20 रुपये किलो","पाँच किलो आलू बीस रुपये किलो",आलू,5,kg,20,100,sale,synthetic
+hi,"2 लीटर दूध 55 रुपये लीटर","दो लीटर दूध पचपन रुपये लीटर",दूध,2,litre,55,110,sale,synthetic
+hi,"12 नग साबुन 30 रुपये नग","बारह नग साबुन तीस रुपये नग",साबुन,12,piece,30,360,sale,synthetic
+hi,"1 दर्जन केला ₹60 दर्जन","एक दर्जन केला साठ रुपये दर्जन",केला,1,dozen,60,60,sale,synthetic
+hi,"3 पैकेट नमक 20 रुपये पैकेट","तीन पैकेट नमक बीस रुपये पैकेट",नमक,3,packet,20,60,sale,synthetic
+hi,"10 किलो चीनी 42 रुपये किलो","दस किलो चीनी बयालीस रुपये किलो",चीनी,10,kg,42,420,sale,synthetic
+hi,"20 किलो गेहूं 22 रुपये किलो","बीस किलो गेहूं बाईस रुपये किलो",गेहूं,20,kg,22,440,sale,synthetic
+hi,"3 किलो प्याज 25 रुपये किलो","तीन किलो प्याज पच्चीस रुपये किलो",प्याज,3,kg,25,75,sale,synthetic
+hi,"aadha kilo adrak 80 rupaye kilo","aadha kilo adrak assi rupaye kilo",adrak,0.5,kg,80,40,sale,synthetic
+hi,"sava kilo makkhan 500 rupaye kilo","sava kilo makkhan paanch sau rupaye kilo",makkhan,1.25,kg,500,625,sale,synthetic
+hi,"डेढ़ किलो टमाटर चालीस रुपये किलो","डेढ़ किलो टमाटर चालीस रुपये किलो",टमाटर,1.5,kg,40,60,sale,synthetic
+hi,"ढाई किलो प्याज तीस रुपये किलो","ढाई किलो प्याज तीस रुपये किलो",प्याज,2.5,kg,30,75,sale,synthetic
+hi,"5 किलो साबुन kharida 30 रुपये किलो","paanch kilo sabun kharida tees rupaye kilo",साबुन,5,kg,30,150,purchase,synthetic
+hi,"2 पैकेट नोटबुक ₹40 पैकेट","दो पैकेट नोटबुक चालीस रुपये पैकेट",नोटबुक,2,packet,40,80,sale,synthetic
+hi,"10 नग रिचार्ज कूपन 50 रुपये नग","दस नग रिचार्ज कूपन पचास रुपये नग",रिचार्ज कूपन,10,piece,50,500,sale,synthetic
+hi,"50 किलो चावल कुल 3000","पचास किलो चावल कुल तीन हज़ार",चावल,50,kg,60,3000,sale,synthetic
+en,"five kg sugar forty rupees per kg","five kg sugar forty rupees per kg",sugar,5,kg,40,200,sale,synthetic
+en,"two litre milk fifty five rupees per litre","two litre milk fifty five rupees per litre",milk,2,litre,55,110,sale,synthetic
+en,"twelve pieces soap thirty rupees each","twelve pieces soap thirty rupees each",soap,12,piece,30,360,sale,synthetic
+en,"one dozen banana sixty rupees per dozen","one dozen banana sixty rupees per dozen",banana,1,dozen,60,60,sale,synthetic
+en,"three kilo onion twenty five rupees kilo","three kilo onion twenty five rupees kilo",onion,3,kg,25,75,sale,synthetic
+en,"ten kilo flour thirty rupees kilo","ten kilo flour thirty rupees kilo",flour,10,kg,30,300,sale,synthetic
+en,"5 kg notebook bought 20 rupees each","five kg notebook bought twenty rupees each",notebook,5,kg,20,100,purchase,synthetic
+en,"half kilo ginger eighty rupees kilo","half kilo ginger eighty rupees kilo",ginger,0.5,kg,80,40,sale,synthetic
+en,"10 recharge fifty rupees each","ten recharge fifty rupees each",recharge,10,piece,50,500,sale,synthetic
+hi,"चावल बेचा","चावल बेचा",,,,,,sale,synthetic
+en,"fifty rupees","fifty rupees",,,,,,sale,synthetic
+en,"rice kilo","rice kilo",,,,,,sale,synthetic

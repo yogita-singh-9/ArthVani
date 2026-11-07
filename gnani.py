@@ -18,16 +18,19 @@ Public API
 Security
 --------
   The API key is read from GNANI_API_KEY in the environment (via .env loaded
-  with python-dotenv). It is never printed, logged, returned, or stored here.
+  with python-dotenv), with a fallback to st.secrets for Streamlit Cloud
+  deployment. It is NEVER printed, logged, returned, or stored here.
 
 Concurrency
 -----------
-  NEVER call stt() and tts() concurrently. Some Gnani accounts allow only
-  one active request at a time (HTTP 429). Always call them one after the
-  other. tts() retries once after 2 seconds on a 429 response.
+  A module-level threading.Lock() ensures stt() and tts() are NEVER called
+  at the same time. Some Gnani accounts allow only one active request at a
+  time (HTTP 429). The lock serialises all API calls within a process.
+  tts() retries once after a short wait on 429.
 """
 
 import os
+import threading
 import time
 import requests
 from dotenv import load_dotenv
@@ -36,12 +39,18 @@ from dotenv import load_dotenv
 # in the shell wins (useful in CI where there is no .env file).
 load_dotenv(override=False)
 
+# ── Module-level lock — prevents concurrent STT + TTS calls ──────────────────
+_API_LOCK = threading.Lock()
+
 # ── Endpoints ────────────────────────────────────────────────────────────────
 STT_URL = "https://api.vachana.ai/stt/v3"
 TTS_URL = "https://api.vachana.ai/api/v1/tts/inference"
 
 # Seconds to wait before timing out a request
 REQUEST_TIMEOUT = 60
+
+# Seconds to wait before retrying after a 429 response
+_RETRY_WAIT = 3
 
 # ── TTS voice and language per UI language ───────────────────────────────────
 # Source: official Gnani TTS docs (timbre-v2.5)
@@ -172,14 +181,43 @@ def number_to_words(n: float, lang: str) -> str:
 # ── Private helpers ──────────────────────────────────────────────────────────
 
 def _get_api_key() -> str:
-    """Read the API key from the environment. Never print or return it to callers."""
+    """
+    Read the API key from the environment.
+    Falls back to st.secrets for Streamlit Cloud deployment.
+    Never prints or returns the key to callers outside this module.
+    """
+    # 1. Environment variable (set by .env or shell)
     key = os.environ.get("GNANI_API_KEY", "")
     if not key:
-        raise EnvironmentError(
-            "GNANI_API_KEY is not set. "
-            "Copy .env.example to .env and add your key."
-        )
-    return key
+        import pathlib
+        load_dotenv(override=False)
+        for candidate in [
+            pathlib.Path(__file__).parent / ".env",
+            pathlib.Path(__file__).parent / "tests" / ".env",
+            pathlib.Path.cwd() / ".env",
+            pathlib.Path.cwd() / "tests" / ".env",
+            pathlib.Path(__file__).parent.parent / ".env",
+        ]:
+            if candidate.is_file():
+                load_dotenv(candidate, override=False)
+        key = os.environ.get("GNANI_API_KEY", "")
+
+    if key:
+        return key
+
+    # 2. Streamlit secrets (for cloud deployment via secrets.toml)
+    try:
+        import streamlit as st  # only available when running under Streamlit
+        key = st.secrets.get("GNANI_API_KEY", "")
+        if key:
+            return key
+    except Exception:
+        pass   # not running under Streamlit, or secrets not configured
+    raise EnvironmentError(
+        "GNANI_API_KEY is not set. "
+        "Copy .env.example to .env and add your key, "
+        "or add it to .streamlit/secrets.toml for cloud deployment."
+    )
 
 
 def _friendly_error(status_code: int, body_text: str) -> str:
@@ -188,10 +226,12 @@ def _friendly_error(status_code: int, body_text: str) -> str:
         401: "Invalid or missing API key. Check GNANI_API_KEY in your .env file.",
         402: "Account has no credits. Please top up your Gnani account.",
         403: "Your API key does not have permission for this endpoint.",
-        429: "API busy — only one request is allowed at a time. Please wait and try again.",
+        429: "API busy — only one request is allowed at a time. Please wait a moment.",
     }
     if status_code in messages:
         return messages[status_code]
+    if 500 <= status_code < 600:
+        return f"Gnani server error (HTTP {status_code}). Please try again in a moment."
     # Trim the raw body to avoid showing stack traces or secrets
     snippet = body_text[:200].strip()
     return f"API error (HTTP {status_code}): {snippet}"
@@ -218,24 +258,34 @@ def stt(audio_bytes: bytes, language_code: str, filename: str = "audio.wav") -> 
     Raises
     ------
     RuntimeError with a friendly, user-visible message on any failure.
+
+    Notes
+    -----
+    Acquires _API_LOCK so this never runs concurrently with tts().
     """
     key = _get_api_key()
 
-    # Build multipart/form-data request (field names from PRD §6)
-    files = {"audio_file": (filename, audio_bytes)}
-    data = {"language_code": language_code}
-    headers = {"X-API-Key-ID": key}  # auth header — never echoed
+    files   = {"audio_file": (filename, audio_bytes)}
+    data    = {"language_code": language_code}
+    headers = {"X-API-Key-ID": key}
 
-    try:
-        response = requests.post(
-            STT_URL,
-            headers=headers,
-            files=files,
-            data=data,
-            timeout=REQUEST_TIMEOUT,
-        )
-    except requests.exceptions.RequestException as exc:
-        raise RuntimeError(f"Cannot reach STT API. Check your internet connection. ({exc})") from exc
+    with _API_LOCK:
+        try:
+            response = requests.post(
+                STT_URL,
+                headers=headers,
+                files=files,
+                data=data,
+                timeout=REQUEST_TIMEOUT,
+            )
+        except requests.exceptions.Timeout:
+            raise RuntimeError(
+                "Speech recognition timed out. Check your connection and try again."
+            )
+        except requests.exceptions.RequestException as exc:
+            raise RuntimeError(
+                f"Cannot reach STT API. Check your internet connection. ({exc})"
+            ) from exc
 
     if response.status_code != 200:
         raise RuntimeError(_friendly_error(response.status_code, response.text))
@@ -243,16 +293,13 @@ def stt(audio_bytes: bytes, language_code: str, filename: str = "audio.wav") -> 
     try:
         body = response.json()
     except ValueError:
-        raise RuntimeError(f"STT returned an unexpected response (not JSON).")
+        raise RuntimeError("STT returned an unexpected response (not JSON).")
 
-    # success=false means Gnani processed the request but found a problem
     if not body.get("success", True):
         raise RuntimeError(f"STT API reported a failure: {body.get('message', 'unknown error')}")
 
-    # Extract the two transcript variants from the confirmed response shape
     transcript = body.get("transcript", "")
-    literal = body.get("output", {}).get("literal", transcript)
-
+    literal    = body.get("output", {}).get("literal", transcript)
     return {"transcript": transcript, "literal": literal}
 
 
@@ -279,52 +326,50 @@ def tts(text: str, lang: str) -> bytes:
 
     Notes
     -----
-    Retries once after 2 seconds on HTTP 429 (rate limit). Do NOT call
-    this concurrently with stt() — wait for one to finish before the other.
+    Acquires _API_LOCK so this never runs concurrently with stt().
+    Retries once after _RETRY_WAIT seconds on HTTP 429 (rate limit).
     """
     if lang not in _TTS_CONFIG:
         raise ValueError(f"lang must be 'hi' or 'en', got: {lang!r}")
 
-    cfg = _TTS_CONFIG[lang]
-    key = _get_api_key()
-
-    headers = {
-        "X-API-Key-ID": key,
-        "Content-Type": "application/json",
-    }
-    # Payload from official Gnani TTS docs (timbre-v2.5 model, WAV output)
+    cfg     = _TTS_CONFIG[lang]
+    key     = _get_api_key()
+    headers = {"X-API-Key-ID": key, "Content-Type": "application/json"}
     payload = {
-        "text": text,
-        "voice": cfg["voice"],
-        "model": "timbre-v2.5",
+        "text":     text,
+        "voice":    cfg["voice"],
+        "model":    "timbre-v2.5",
         "language": cfg["language"],
-        "speed": 1.0,
+        "speed":    1.0,
         "audio_config": {
-            "sample_rate": 48000,
+            "sample_rate":  48000,
             "num_channels": 1,
             "sample_width": 2,
-            "encoding": "linear_pcm",
-            "container": "wav",
+            "encoding":     "linear_pcm",
+            "container":    "wav",
         },
     }
 
     def _send() -> requests.Response:
         try:
             return requests.post(
-                TTS_URL,
-                headers=headers,
-                json=payload,
-                timeout=REQUEST_TIMEOUT,
+                TTS_URL, headers=headers, json=payload, timeout=REQUEST_TIMEOUT,
+            )
+        except requests.exceptions.Timeout:
+            raise RuntimeError(
+                "Text-to-speech timed out. Check your connection and try again."
             )
         except requests.exceptions.RequestException as exc:
-            raise RuntimeError(f"Cannot reach TTS API. Check your internet connection. ({exc})") from exc
+            raise RuntimeError(
+                f"Cannot reach TTS API. Check your internet connection. ({exc})"
+            ) from exc
 
-    response = _send()
-
-    # Retry once on 429 (rate limit — wait for the previous request to finish)
-    if response.status_code == 429:
-        time.sleep(2)
+    with _API_LOCK:
         response = _send()
+        # Retry once on 429
+        if response.status_code == 429:
+            time.sleep(_RETRY_WAIT)
+            response = _send()
 
     if response.status_code != 200:
         raise RuntimeError(_friendly_error(response.status_code, response.text))
@@ -332,5 +377,4 @@ def tts(text: str, lang: str) -> bytes:
     if not response.content:
         raise RuntimeError("TTS API returned an empty audio response.")
 
-    # Return raw WAV bytes — caller saves or plays them directly
     return response.content

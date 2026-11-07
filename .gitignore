@@ -16,8 +16,16 @@ venv/
 .venv/
 env/
 
-# Test audio output
+# Test audio output & media
 tts_output*
+*.wav
+*.m4a
+*.mp3
+noise/
+recordings/*
+!recordings/labels.csv
+results/*
+!results/.gitkeep
 
 # OS junk
 .DS_Store

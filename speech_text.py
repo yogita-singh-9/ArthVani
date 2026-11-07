@@ -132,21 +132,33 @@ def _num_to_en(n: float) -> str:
 # ════════════════════════════════════════════════════════════
 
 # How to say each canonical unit in Hindi and English TTS sentences
+# Each entry has: "hi" (Devanagari), "en_qty" (quantity phrase), "en_rate" (rate phrase)
 _UNIT_DISPLAY: dict[str, dict[str, str]] = {
-    "kg":     {"hi": "किलो",   "en": "kilo"},
-    "g":      {"hi": "ग्राम",  "en": "gram"},
-    "litre":  {"hi": "लीटर",   "en": "litre"},
-    "dozen":  {"hi": "दर्जन",  "en": "dozen"},
-    "packet": {"hi": "पैकेट",  "en": "packet"},
-    "piece":  {"hi": "नग",     "en": "piece"},
+    "kg":     {"hi": "किलो",   "en_qty": "kilos",   "en_rate": "kilo"},
+    "g":      {"hi": "ग्राम",  "en_qty": "grams",   "en_rate": "gram"},
+    "litre":  {"hi": "लीटर",   "en_qty": "litres",  "en_rate": "litre"},
+    "dozen":  {"hi": "दर्जन",  "en_qty": "dozen",   "en_rate": "dozen"},
+    "packet": {"hi": "पैकेट",  "en_qty": "packets", "en_rate": "packet"},
+    "piece":  {"hi": "नग",     "en_qty": "pieces",  "en_rate": "piece"},
 }
 
 
-def _unit_word(unit: str, lang: str) -> str:
-    """Return the spoken unit word for the given language."""
-    if unit in _UNIT_DISPLAY:
-        return _UNIT_DISPLAY[unit].get(lang, unit)
-    return unit   # unknown unit — pass through as-is
+def _unit_word(unit: str, lang: str, rate: bool = False) -> str:
+    """Return the spoken unit word for the given language.
+
+    Parameters
+    ----------
+    unit  : canonical unit key (kg, g, litre, dozen, packet, piece)
+    lang  : "hi" or "en"
+    rate  : True when used in a "per <unit>" rate phrase (English only)
+    """
+    if unit not in _UNIT_DISPLAY:
+        return unit   # unknown unit — pass through as-is
+    entry = _UNIT_DISPLAY[unit]
+    if lang == "hi":
+        return entry["hi"]
+    # English: use plural form for quantity, singular for rate
+    return entry["en_rate"] if rate else entry["en_qty"]
 
 
 # ════════════════════════════════════════════════════════════
@@ -181,12 +193,14 @@ def build_readback(entry: dict, language: str) -> str:
 
     # Choose number formatter
     num = _num_to_deva if language == "hi" else _num_to_en
-    uword = _unit_word(unit, language) if unit else ""
 
     if language == "hi":
+        uword = _unit_word(unit, "hi") if unit else ""
         return _build_hindi(item, qty, uword, price, total, num)
     else:
-        return _build_english(item, qty, uword, price, total, num)
+        uword_qty  = _unit_word(unit, "en", rate=False) if unit else ""  # "kilos"
+        uword_rate = _unit_word(unit, "en", rate=True)  if unit else ""  # "kilo"
+        return _build_english(item, qty, uword_qty, uword_rate, price, total, num)
 
 
 def _build_hindi(item, qty, uword, price, total, num) -> str:
@@ -226,18 +240,23 @@ def _build_hindi(item, qty, uword, price, total, num) -> str:
     return sentence + "। सही है?"
 
 
-def _build_english(item, qty, uword, price, total, num) -> str:
+def _build_english(item, qty, uword_qty, uword_rate, price, total, num) -> str:
     """
     Build an English read-back sentence.
 
     Pattern: "<qty> kilos of <item>, <price> rupees per <unit>,
               total <total> rupees. Is that correct?"
+
+    Parameters
+    ----------
+    uword_qty  : plural unit word for the quantity phrase ("kilos", "litres" …)
+    uword_rate : singular unit word for the per-rate phrase ("kilo", "litre" …)
     """
     parts: list[str] = []
 
     # Quantity + unit + item
-    if qty is not None and uword and item:
-        parts.append(f"{num(qty)} {uword} of {item}")
+    if qty is not None and uword_qty and item:
+        parts.append(f"{num(qty)} {uword_qty} of {item}")
     elif qty is not None and item:
         parts.append(f"{num(qty)} {item}")
     elif item:
@@ -245,8 +264,8 @@ def _build_english(item, qty, uword, price, total, num) -> str:
 
     # Price per unit
     if price is not None:
-        if uword:
-            parts.append(f"{num(price)} rupees per {uword}")
+        if uword_rate:
+            parts.append(f"{num(price)} rupees per {uword_rate}")
         else:
             parts.append(f"{num(price)} rupees")
 
