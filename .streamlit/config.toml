@@ -1,0 +1,10 @@
+# Streamlit theme — matches the ArthVani design system (PRD §11)
+# These four colours are the only ones Streamlit lets you set here;
+# all other colours are applied via theme.css injected in app.py.
+
+[theme]
+primaryColor      = "#4ABA94"   # Boombox Teal — buttons, links, focus rings
+backgroundColor   = "#FFEDB7"   # Cream — page background
+secondaryBackgroundColor = "#FFF6DA"  # Lighter cream — sidebar, card backgrounds
+textColor         = "#2B3A39"   # Deep Teal-Charcoal — main text
+

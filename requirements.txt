@@ -1,0 +1,25 @@
+# ArthVani — Python dependencies
+# Install with: pip install -r requirements.txt
+
+# --- UI ---
+streamlit>=1.35.0          # web UI with st.audio_input mic widget
+
+# --- HTTP ---
+requests>=2.31.0           # calls Gnani STT and TTS REST APIs
+
+# --- Data & storage ---
+pandas>=2.2.0              # table display, CSV/Excel manipulation
+openpyxl>=3.1.0            # write .xlsx files for Excel download
+python-dotenv>=1.0.0       # loads GNANI_API_KEY from .env without hardcoding
+
+# --- Parsing ---
+rapidfuzz>=3.6.0           # fuzzy matching for mis-spelled unit/filler words
+
+# --- Number-to-words (for TTS input formatting) ---
+num2words>=0.5.13          # English number words; Hindi uses a hand-built table
+                           # (num2words does not support Hindi)
+
+# --- Testing ---
+pytest>=8.0.0              # unit tests (parser, db)
+pydub>=0.25.1              # mix noise, resample audio for noise_eval.py
+numpy>=1.26.0              # signal processing in noise_eval.py

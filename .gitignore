@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment & secrets (never commit .env)
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Test audio output
+tts_output*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
