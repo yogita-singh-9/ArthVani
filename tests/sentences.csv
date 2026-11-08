@@ -29,3 +29,15 @@ en,"10 recharge fifty rupees each","ten recharge fifty rupees each",recharge,10,
 hi,"चावल बेचा","चावल बेचा",,,,,,sale,synthetic
 en,"fifty rupees","fifty rupees",,,,,,sale,synthetic
 en,"rice kilo","rice kilo",,,,,,sale,synthetic
+hi,"dedh kilo paneer 300 rupaye","dedh kilo paneer teen sau rupaye",paneer,1.5,kg,300,450,sale,synthetic
+hi,"dhai kilo chawal 60 rupaye kilo","dhai kilo chawal saath rupaye kilo",chawal,2.5,kg,60,150,sale,synthetic
+hi,"sava kilo atta 45 rupaye kilo","sava kilo atta paantaalees rupaye kilo",atta,1.25,kg,45,56.25,sale,synthetic
+hi,"aadha kilo namak 20 rupaye","aadha kilo namak bees rupaye",namak,0.5,kg,20,10,sale,synthetic
+hi,"ek sau kilo chawal 55 rupaye kilo","ek sau kilo chawal pachpan rupaye kilo",chawal,100,kg,55,5500,sale,synthetic
+hi,"paanch litre tel 130 rupaye litre","paanch litre tel ek sau tees rupaye litre",tel,5,litre,130,650,sale,synthetic
+hi,"saade teen kilo daal 110 rupaye kilo","saade teen kilo daal ek sau das rupaye kilo",saade daal,3,kg,110,330,sale,synthetic
+en,"dedh kilo butter 480 rupees kilo","dedh kilo butter four eighty rupees kilo",butter,1.5,kg,480,720,sale,synthetic
+en,"dhai litre milk 55 rupees litre","dhai litre milk fifty five rupees litre",milk,2.5,litre,55,137.5,sale,synthetic
+en,"sava kg sugar 44 rupees kg","sava kg sugar forty four rupees kg",sugar,1.25,kg,44,55,sale,synthetic
+en,"two dozen eggs 70 rupees dozen bought","two dozen eggs seventy rupees dozen bought",eggs,2,dozen,70,140,purchase,synthetic
+en,"200 gram tea 400 rupees kg","two hundred gram tea four hundred rupees kg",tea,200,g,400,80000,sale,synthetic

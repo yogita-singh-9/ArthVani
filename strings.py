@@ -29,6 +29,78 @@ _STRINGS: dict[str, dict[str, str]] = {
     "tagline":        {"en": "Speak, and the ledger is done.",
                        "hi": "बोलिए, हिसाब हो जाएगा।"},
 
+    # Navigation
+    "nav_dashboard":  {"en": "Dashboard",          "hi": "डैशबोर्ड"},
+    "nav_speak":      {"en": "Speak",              "hi": "बोलिए"},
+    "nav_ledger":     {"en": "Ledger",             "hi": "बही-खाता"},
+    "nav_reports":    {"en": "Reports",            "hi": "रिपोर्ट"},
+    "nav_settings":   {"en": "Settings",           "hi": "सेटिंग"},
+
+    # Status
+    "status_api":     {"en": "API",                "hi": "API"},
+    "status_mic":     {"en": "Mic",                "hi": "माइक"},
+
+    # Greeting
+    "greeting_morning":   {"en": "Good morning",   "hi": "सुप्रभात"},
+    "greeting_afternoon": {"en": "Good afternoon", "hi": "नमस्ते"},
+    "greeting_evening":   {"en": "Good evening",   "hi": "शुभ संध्या"},
+
+    # Dashboard
+    "chart_title":    {"en": "14-Day Overview",    "hi": "14 दिन का सारांश"},
+    "top_items":      {"en": "Top Items",          "hi": "शीर्ष सामान"},
+    "recent_entries": {"en": "Recent Entries",     "hi": "हालिया एंट्री"},
+    "hero_cta_title": {"en": "Ready to record?",   "hi": "एंट्री दर्ज करने के लिए तैयार?"},
+    "hero_cta_sub":   {"en": "Tap the button and say your entry in Hindi or English.",
+                       "hi": "बटन दबाएं और हिंदी या English में एंट्री बोलें।"},
+
+    # Speak
+    "try_saying":     {"en": "Try saying:",        "hi": "बोलकर देखें:"},
+    "save_entry":     {"en": "Save entry",         "hi": "एंट्री सेव करें"},
+    "rerecord":       {"en": "Re-record",          "hi": "फिर से बोलें"},
+    "discard":        {"en": "Discard",            "hi": "रद्द करें"},
+    "discarded":      {"en": "Entry discarded.",   "hi": "एंट्री रद्द की।"},
+    "undo":           {"en": "Undo",               "hi": "वापस लें"},
+    "undo_done":      {"en": "Entry removed.",     "hi": "एंट्री हटाई।"},
+
+    # Ledger filters – date
+    "date_all":       {"en": "All time",           "hi": "सभी समय"},
+    "date_today":     {"en": "Today",              "hi": "आज"},
+    "date_7d":        {"en": "Last 7 days",        "hi": "पिछले 7 दिन"},
+    "date_30d":       {"en": "Last 30 days",       "hi": "पिछले 30 दिन"},
+
+    # Edit / delete
+    "edit":           {"en": "Edit",               "hi": "संपादित करें"},
+    "delete":         {"en": "Delete",             "hi": "हटाएं"},
+    "edit_entry":     {"en": "Edit Entry",         "hi": "एंट्री बदलें"},
+    "delete_confirm_title": {"en": "Delete entry?","hi": "एंट्री हटाएं?"},
+    "delete_confirm_body":  {"en": "This action cannot be undone.",
+                              "hi": "यह क्रिया वापस नहीं होगी।"},
+    "save":           {"en": "Save",               "hi": "सेव करें"},
+    "cancel":         {"en": "Cancel",             "hi": "रद्द करें"},
+
+    # Reports
+    "period":         {"en": "Period",             "hi": "समयावधि"},
+    "summary":        {"en": "Summary",            "hi": "सारांश"},
+    "sales_vs_purchases": {"en": "Sales vs Purchases", "hi": "बिक्री बनाम खरीद"},
+
+    # Settings
+    "settings_shop":        {"en": "Shop",         "hi": "दुकान"},
+    "settings_shop_name":   {"en": "Shop Name",    "hi": "दुकान का नाम"},
+    "settings_language":    {"en": "Language",     "hi": "भाषा"},
+    "settings_examples":    {"en": "Supported Sentence Patterns", "hi": "समर्थित वाक्य"},
+    "demo_data_title":      {"en": "Demo Data",    "hi": "डेमो डेटा"},
+    "demo_data_desc":       {"en": "Load realistic sample entries to explore the app. Clear them any time — your real entries are never touched.",
+                             "hi": "ऐप को एक्सप्लोर करने के लिए डेमो एंट्री लोड करें। कभी भी हटाएं — असली एंट्री सुरक्षित रहेंगी।"},
+    "privacy_title":        {"en": "Privacy & Security", "hi": "गोपनीयता और सुरक्षा"},
+    "privacy_note2":        {"en": "No customer data is stored in the cloud. Your ledger lives locally on this device.",
+                             "hi": "ग्राहक डेटा क्लाउड में सेव नहीं होता। आपका हिसाब केवल इस डिवाइस पर है।"},
+
+    # Error - mic
+    "error_mic_denied":  {"en": "Microphone access denied. Please allow mic in browser settings.",
+                           "hi": "माइक की अनुमति नहीं मिली। ब्राउज़र सेटिंग में माइक अनुमति दें।"},
+    "error_audio_too_long": {"en": "Audio too long (max 60 s). Please try again.",
+                              "hi": "ऑडियो बहुत लंबी है (अधिकतम 60 सेकंड)। फिर कोशिश करें।"},
+
     # Language selector labels (shown in English always so user can switch)
     "lang_hindi":     {"en": "हिंदी",              "hi": "हिंदी"},
     "lang_english":   {"en": "English",             "hi": "English"},

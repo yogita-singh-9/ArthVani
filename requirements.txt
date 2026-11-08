@@ -1,29 +1,35 @@
 # ArthVani — Python dependencies
 # Install with: pip install -r requirements.txt
 
-# --- UI ---
-streamlit>=1.35.0          # web UI with st.audio_input mic widget
+# --- FastAPI backend ---
+fastapi>=0.115.0
+uvicorn>=0.32.0
+python-multipart>=0.0.9     # multipart/form-data for audio upload
+aiofiles>=24.1.0            # static file serving
 
 # --- HTTP ---
-requests>=2.31.0           # calls Gnani STT and TTS REST APIs
+requests>=2.31.0            # calls Gnani STT and TTS REST APIs
 
 # --- Data & storage ---
-pandas>=2.2.0              # table display, CSV/Excel manipulation
-openpyxl>=3.1.0            # write .xlsx files for Excel download
-python-dotenv>=1.0.0       # loads GNANI_API_KEY from .env without hardcoding
+pandas>=2.2.0               # table display, CSV/Excel manipulation
+openpyxl>=3.1.0             # write .xlsx files for Excel download
+python-dotenv>=1.0.0        # loads GNANI_API_KEY from .env without hardcoding
 
 # --- Parsing ---
-rapidfuzz>=3.6.0           # fuzzy matching for mis-spelled unit/filler words
+rapidfuzz>=3.6.0            # fuzzy matching for mis-spelled unit/filler words
 
 # --- Number-to-words (for TTS input formatting) ---
-num2words>=0.5.13          # English number words; Hindi uses a hand-built table
-                           # (num2words does not support Hindi)
+num2words>=0.5.13           # English number words; Hindi uses a hand-built table
 
 # --- Testing ---
-pytest>=8.0.0              # unit tests (parser, db)
-pydub>=0.25.1              # mix noise, resample audio for noise_eval.py
-numpy>=1.26.0              # signal processing in noise_eval.py
+pytest>=8.0.0
+httpx>=0.27.0               # FastAPI TestClient dependency
+pydub>=0.25.1               # mix noise, resample audio for noise_eval.py
+numpy>=1.26.0               # signal processing in noise_eval.py
 
 # --- Python 3.13+ compatibility ---
 # audioop was removed in Python 3.13; this backport restores it for pydub.
 audioop-lts>=0.2.2; python_version >= "3.13"
+
+# --- Optional: Streamlit (kept for reference; app now runs via FastAPI) ---
+# streamlit>=1.35.0

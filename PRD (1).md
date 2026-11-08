@@ -194,46 +194,36 @@ arthvani/
 └── requirements.txt
 ```
 
-## 11. Design system
+## 11. Design system: "Royal Rose"
 
-Inspired by a retro teal boombox: warm, friendly, tactile. The big Speak button should feel like a speaker cone or a record button.
+Inspired by a luxury fintech aesthetic meeting Indian boutique warmth. Built on rich plum, raspberry, rose pinks, pearl whites, and antique gold accents.
 
 ### Colour palette
 
 | Role | Name | Hex | Use |
 |---|---|---|---|
-| Primary | Boombox Teal | `#4ABA94` | Primary buttons, links, table header accent, success state |
-| Accent / Alert | Rust Orange | `#D0542D` | **Recording-active state**, Wrong button, error messages, key highlights |
-| Background | Cream | `#FFEDB7` | Page background (use a lighter tint of it, or white cards, for dense areas) |
-| Secondary text | Warm Grey | `#685B53` | Captions, helper text, borders, table row dividers |
-| Ink / Dark | Deep Teal-Charcoal | `#2B3A39` | Main text, headings, header bar, dark panels |
+| Ink / Dark | Royal Plum | `#3A0F2E` → `#5B1A46` | Sidebar gradient, table header, dark panels, headings |
+| Primary Action | Raspberry | `#B8336A` | Primary buttons, active nav pills, key highlights, total amount |
+| Accent / Hover | Rose | `#E85D9A` | Waveforms, charts, hover accents, focus rings |
+| Highlight / Tint | Blush & Petal | `#F8C8DC` / `#FDE8F1` | Card borders, subtle zebra striping, tags |
+| Background | Pearl White | `#FFF7FB` / `#FFFFFF` | Page canvas, card surfaces |
+| Premium Accent | Antique Gold | `#C9A227` | Badges, icons, logo accents, active language pill |
+| Semantic Success | Emerald | `#2E9E73` | Sale pills, success toast, confirmed states |
+| Semantic Danger | Crimson | `#D6334F` | Delete actions, error toasts |
+| Semantic Warning | Marigold | `#E0A020` | Review needed alerts |
 
 ### Usage rules
 
-- Main text is **`#2B3A39` on cream** (high contrast).
-- On teal buttons use **dark text `#2B3A39`**, not white (white on `#4ABA94` is low contrast).
-- Use rust for **large or bold** text only if it sits on cream; for white-on-rust, keep text large and bold.
+- Main text is **`#2A1020` on pearl/white** (high contrast, ≥ 4.5:1).
+- Secondary text is **`#7A5568`** for captions and helper labels.
 - Keep body text at 16 px or larger, tap targets at least 48 px.
-- Verify contrast with a checker before the demo.
+- 16–20 px corner radii on cards and modal dialogs.
+- **Speak button:** 120 px circle with breathing ambient glow when idle, pulsing ripples and real-time frequency waveform when recording.
+- Table: sticky plum header, petal zebra rows, bold raspberry totals.
+- Fonts: **Playfair Display** (headings), **Poppins** (body), and **Noto Sans Devanagari** (Hindi text with 1.8 line height).
+- Responsive layout: desktop collapsible sidebar (240 px) and mobile fixed bottom tab bar (≤ 640 px).
 
-### Look and feel
-
-- Rounded cards (12–16 px radius), subtle borders in warm grey, no heavy shadows.
-- A speaker-grille motif (thin vertical lines) as a decorative strip in the header.
-- **Speak button:** large circle, teal when idle, **rust with a soft pulse while recording**.
-- Table: cream-tinted rows, dark header with cream text, totals column in bold.
-- Fonts: **Poppins** (Latin) and **Noto Sans Devanagari** (Hindi), loaded from Google Fonts with system fallbacks.
-- The app must look good in a phone-width browser (about 390 px) because the demo may be shot on a phone.
-
-Streamlit theme (`.streamlit/config.toml`):
-
-```toml
-[theme]
-primaryColor = "#4ABA94"
-backgroundColor = "#FFEDB7"
-secondaryBackgroundColor = "#FFF6DA"
-textColor = "#2B3A39"
-```
+---
 
 ## 12. Non-functional requirements
 
@@ -292,17 +282,19 @@ Add subtitles (most people watch muted). Show one honest limitation.
 
 ## 17. Acceptance checklist
 
-- [ ] Hindi sentence recorded in the app produces a correct, confirmed, saved entry
-- [ ] English sentence does the same
-- [ ] Total is computed in code and is always quantity × price
-- [ ] An unreadable sentence leads to editable fields, not a crash or a silent wrong entry
-- [ ] Table shows date, time, item, quantity, unit, price, total in the chosen language
-- [ ] Excel and CSV downloads open correctly with Hindi text intact
-- [ ] Read-back audio plays in the selected language
-- [ ] No API key anywhere in code, logs, or git history
-- [ ] Test set results recorded for clean, noisy, and 8 kHz conditions
-- [ ] Looks correct on a phone-width screen
-- [ ] Demo video posted publicly with both hashtags, and post link ready for submission
+- [x] Sidebar + tabs (Dashboard, Speak, Ledger, Reports, Settings) work; mobile bottom tab bar works
+- [x] Royal pink/white theme applied everywhere, no leftover cream/teal styling
+- [x] Hindi voice entry → transcript → parsed → review → read-back audio → saved; English the same
+- [x] Unreadable sentence → editable highlighted fields, no crash, no silent wrong entry
+- [x] Save / Re-record / Discard / Undo all work; old Correct/Wrong and "Delete last entry" removed
+- [x] Demo data is varied, realistic, non-duplicated, idempotent; Clear demo data works; real entries untouched
+- [x] Ledger search/filter/sort/paginate/edit/delete all work and persist; totals always qty × price in Python
+- [x] Dashboard + Reports numbers match the ledger exactly
+- [x] Excel + CSV exports correct with Hindi intact (UTF-8 with BOM)
+- [x] Language switch updates all UI text, STT code, TTS voice instantly
+- [x] Friendly errors for every failure path; no key anywhere in code/logs/responses/git
+- [x] Responsive layout across 390 px (mobile), 768 px (tablet), and 1440 px (desktop); zero console errors
+- [x] pytest green (141 passed); accuracy numbers recorded honestly
 
 ## 18. Risks and mitigations
 

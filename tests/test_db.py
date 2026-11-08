@@ -30,6 +30,7 @@ from db import (
     export_xlsx,
     export_csv,
     seed_demo_entries,
+    clear_demo_entries,
 )
 
 
@@ -294,13 +295,79 @@ def test_export_csv_hindi_headings(db_with_entries):
 def test_seed_demo_entries(db):
     seed_demo_entries(db)
     rows = list_entries(db)
-    assert len(rows) == 5
+    assert len(rows) >= 60
     items = [r["item"] for r in rows]
     # Must include both Hindi and English items
     assert any("\u0900" <= c <= "\u097F" for item in items for c in item), \
         "Expected at least one Hindi item"
     assert any(item.isascii() and item.isalpha() for item in items), \
         "Expected at least one ASCII item"
+
+
+def test_seed_idempotent(db):
+    """Calling seed_demo_entries repeatedly should not duplicate data."""
+    n1 = seed_demo_entries(db)
+    assert n1 >= 60
+    n2 = seed_demo_entries(db)
+    assert n2 == 0
+    rows = list_entries(db)
+    assert len(rows) == n1
+
+
+def test_clear_demo_entries(db):
+    """clear_demo_entries must remove only demo rows and leave real entries untouched."""
+    # Insert a real entry
+    real_id = save_entry({"item": "real_item", "quantity": 1.0, "price": 10.0}, "en", "", db, is_demo=0)
+    seed_demo_entries(db)
+    before_count = len(list_entries(db))
+    assert before_count > 1
+
+    cleared = clear_demo_entries(db)
+    assert cleared > 0
+    after_rows = list_entries(db)
+    assert len(after_rows) == 1
+    assert after_rows[0]["id"] == real_id
+    assert after_rows[0]["item"] == "real_item"
+
+
+def test_is_demo_column_exists(db):
+    """Verify that is_demo column exists in the database schema."""
+    import sqlite3
+    conn = sqlite3.connect(db)
+    cols = [col[1] for col in conn.execute("PRAGMA table_info(entries)").fetchall()]
+    conn.close()
+    assert "is_demo" in cols
+
+
+def test_migration_adds_is_demo(tmp_path):
+    """If a database was created with an old schema lacking is_demo, init_db migrates it."""
+    import sqlite3
+    old_db = str(tmp_path / "old.db")
+    conn = sqlite3.connect(old_db)
+    conn.execute("""
+    CREATE TABLE entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        created_at TEXT NOT NULL,
+        entry_type TEXT NOT NULL DEFAULT 'sale',
+        item TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        unit TEXT,
+        price REAL NOT NULL,
+        total REAL NOT NULL,
+        language TEXT NOT NULL,
+        transcript TEXT DEFAULT ''
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+    # Call init_db which should perform auto-migration
+    init_db(old_db)
+
+    conn = sqlite3.connect(old_db)
+    cols = [col[1] for col in conn.execute("PRAGMA table_info(entries)").fetchall()]
+    conn.close()
+    assert "is_demo" in cols
 
 
 def test_seed_totals_correct(db):

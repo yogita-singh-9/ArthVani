@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="hi" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="ArthVani – Voice-first ledger for kirana shops. बोलिए, हिसाब हो जाएगा।"/>
+  <title>ArthVani – बोलिए, हिसाब हो जाएगा</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- Chart.js CDN (graceful degradation: charts hidden if unavailable) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+
+  <link rel="stylesheet" href="/static/styles.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-inner">
+
+      <!-- Logo -->
+      <div class="sidebar-logo">
+        <div class="logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Mic body -->
+            <rect x="17" y="4" width="14" height="22" rx="7" fill="#E85D9A"/>
+            <!-- Mic stand -->
+            <path d="M12 22c0 6.627 5.373 12 12 12s12-5.373 12-12" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <line x1="24" y1="34" x2="24" y2="42" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="17" y1="42" x2="31" y2="42" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Rupee accent -->
+            <text x="20" y="19" font-size="10" font-weight="700" fill="white" font-family="sans-serif">₹</text>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-brand">ArthVani</span>
+          <span class="logo-tagline" data-i18n="tagline">बोलिए, हिसाब हो जाएगा।</span>
+        </div>
+      </div>
+
+      <!-- Shop card -->
+      <div class="shop-card">
+        <div class="shop-icon" aria-hidden="true">🏪</div>
+        <div class="shop-info">
+          <div class="shop-name" id="shopNameDisplay" data-i18n-fallback="My Kirana Store">My Kirana Store</div>
+          <button class="shop-edit-btn" id="shopEditBtn" aria-label="Edit shop name">✏️</button>
+        </div>
+      </div>
+
+      <!-- Nav -->
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active" data-tab="dashboard" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">📊</span>
+          <span data-i18n="nav_dashboard">Dashboard</span>
+        </a>
+        <a href="#speak" class="nav-item" data-tab="speak" aria-label="Voice entry">
+          <span class="nav-icon" aria-hidden="true">🎙️</span>
+          <span data-i18n="nav_speak">Speak</span>
+        </a>
+        <a href="#ledger" class="nav-item" data-tab="ledger">
+          <span class="nav-icon" aria-hidden="true">📒</span>
+          <span data-i18n="nav_ledger">Ledger</span>
+        </a>
+        <a href="#reports" class="nav-item" data-tab="reports">
+          <span class="nav-icon" aria-hidden="true">📈</span>
+          <span data-i18n="nav_reports">Reports</span>
+        </a>
+        <a href="#settings" class="nav-item" data-tab="settings">
+          <span class="nav-icon" aria-hidden="true">⚙️</span>
+          <span data-i18n="nav_settings">Settings</span>
+        </a>
+      </nav>
+
+      <!-- Language toggle -->
+      <div class="lang-toggle" role="group" aria-label="Language selector">
+        <button class="lang-btn active" id="langHi" aria-pressed="true">हिंदी</button>
+        <button class="lang-btn" id="langEn" aria-pressed="false">English</button>
+      </div>
+
+      <!-- Status chips -->
+      <div class="status-chips">
+        <div class="status-chip" id="apiStatusChip">
+          <span class="chip-dot"></span>
+          <span data-i18n="status_api">API</span>
+        </div>
+        <div class="status-chip" id="micStatusChip">
+          <span class="chip-dot"></span>
+          <span data-i18n="status_mic">Mic</span>
+        </div>
+      </div>
+
+      <!-- Privacy note -->
+      <p class="sidebar-privacy" data-i18n="privacy_note">
+        🔒 Audio is sent to Gnani only for transcription and is not stored.
+      </p>
+
+      <div class="sidebar-credit" data-i18n="powered_by">Powered by Gnani AI Prisma &amp; Timbre</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main" role="main">
+
+    <!-- TOP BAR -->
+    <header id="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+      <h1 id="pageTitle" class="topbar-title" data-i18n="nav_dashboard">Dashboard</h1>
+      <div class="topbar-right">
+        <span id="topbarDate" class="topbar-date"></span>
+        <button class="btn-speak-fab" id="topbarSpeakBtn" aria-label="Quick speak entry">
+          🎙️ <span data-i18n="speak">बोलिए</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- TOAST AREA -->
+    <div id="toastArea" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- ══════════ TAB: DASHBOARD ══════════ -->
+    <section id="tab-dashboard" class="tab-section active">
+      <div class="greeting" id="greeting"></div>
+
+      <!-- Stat cards -->
+      <div class="stats-grid">
+        <div class="stat-card" id="cardSales">
+          <div class="stat-icon" aria-hidden="true">💰</div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="today_sales">Today's Sales</div>
+            <div class="stat-value" id="statSales">₹0</div>
+          </div>
+        </div>
+        <div class="stat-card" id="cardPurchases">
+          <div class="stat-icon" aria-hidden="true">🛒</div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="today_purchases">Today's Purchases</div>
+            <div class="stat-value" id="statPurchases">₹0</div>
+          </div>
+        </div>
+        <div class="stat-card" id="cardNet">
+          <div class="stat-icon" aria-hidden="true">📊</div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="today_net">Net</div>
+            <div class="stat-value" id="statNet">₹0</div>
+          </div>
+        </div>
+        <div class="stat-card" id="cardEntries">
+          <div class="stat-icon" aria-hidden="true">📝</div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="today_entries">Entries</div>
+            <div class="stat-value" id="statEntries">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 14-day chart -->
+      <div class="card chart-card">
+        <h2 class="card-title" data-i18n="chart_title">14-Day Overview</h2>
+        <div class="chart-wrap">
+          <canvas id="chart14d" role="img" aria-label="14-day sales and purchases chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Bottom row: top items + recent -->
+      <div class="dash-bottom">
+        <div class="card">
+          <h2 class="card-title" data-i18n="top_items">Top Items</h2>
+          <div id="topItemsList" class="top-items-list"></div>
+        </div>
+        <div class="card">
+          <h2 class="card-title" data-i18n="recent_entries">Recent Entries</h2>
+          <div id="recentEntriesList" class="recent-list"></div>
+        </div>
+      </div>
+
+      <!-- Hero CTA -->
+      <div class="hero-cta">
+        <div class="hero-text">
+          <h2 data-i18n="hero_cta_title">Ready to record?</h2>
+          <p data-i18n="hero_cta_sub">Tap the button and say your entry in Hindi or English.</p>
+        </div>
+        <button class="btn-primary btn-hero" id="dashSpeakBtn" aria-label="Start voice entry">
+          🎙️ <span data-i18n="speak">बोलिए</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ══════════ TAB: SPEAK ══════════ -->
+    <section id="tab-speak" class="tab-section" aria-label="Voice entry">
+
+      <!-- Stepper -->
+      <div class="stepper" id="stepper" aria-label="Recording steps">
+        <div class="step active" id="step0" data-i18n="step_listen">Listening</div>
+        <div class="step-sep" aria-hidden="true">›</div>
+        <div class="step" id="step1" data-i18n="step_understand">Understanding</div>
+        <div class="step-sep" aria-hidden="true">›</div>
+        <div class="step" id="step2" data-i18n="step_readback">Reading back</div>
+        <div class="step-sep" aria-hidden="true">›</div>
+        <div class="step" id="step3" data-i18n="step_saved">Saved</div>
+      </div>
+
+      <!-- Example chips -->
+      <div class="chips" id="exampleChips" aria-label="Example phrases">
+        <span class="chip-label" data-i18n="try_saying">Try saying:</span>
+        <button class="chip" data-i18n="example_1">50 kilo rice 60 rupees per kilo</button>
+        <button class="chip" data-i18n="example_2">2 litre milk 55 rupees per litre</button>
+        <button class="chip" data-i18n="example_3">12 soap 30 rupees each</button>
+      </div>
+
+      <!-- Mic button + waveform -->
+      <div class="mic-area">
+        <div class="waveform-wrap" id="waveformWrap" aria-hidden="true">
+          <canvas id="waveform" width="320" height="64"></canvas>
+        </div>
+        <button class="mic-btn" id="micBtn" aria-label="Start recording" aria-pressed="false">
+          <span class="mic-icon" aria-hidden="true">🎙️</span>
+          <span class="mic-label" data-i18n="speak">बोलिए</span>
+        </button>
+        <div class="mic-hint" data-i18n="speak_hint">Tap the mic and say an entry</div>
+        <div class="mic-timer" id="micTimer" aria-live="polite"></div>
+      </div>
+
+      <!-- Transcript bubble -->
+      <div class="transcript-bubble" id="transcriptBubble" style="display:none" role="status">
+        <div class="bubble-label" data-i18n="transcript_raw">What we heard</div>
+        <div class="bubble-text" id="transcriptText"></div>
+      </div>
+
+      <!-- Review card -->
+      <div class="review-card" id="reviewCard" style="display:none">
+        <div class="review-header">
+          <h2 data-i18n="confirm_title">Confirm entry</h2>
+          <div class="review-warn" id="reviewWarn" style="display:none" data-i18n="needs_review">
+            ⚠ Some fields could not be detected. Please fill them in.
+          </div>
+        </div>
+
+        <div class="review-fields">
+          <div class="field-group">
+            <label for="revItem" data-i18n="item">Item</label>
+            <input type="text" id="revItem" class="rev-input" autocomplete="off" spellcheck="false"/>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label for="revQty" data-i18n="qty">Quantity</label>
+              <input type="number" id="revQty" class="rev-input" min="0" step="0.01"/>
+            </div>
+            <div class="field-group">
+              <label for="revUnit" data-i18n="unit">Unit</label>
+              <select id="revUnit" class="rev-select"></select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="revPrice" data-i18n="price">Price (₹/unit)</label>
+            <input type="number" id="revPrice" class="rev-input" min="0" step="0.01"/>
+          </div>
+
+          <!-- Type toggle -->
+          <div class="field-group">
+            <label data-i18n="type">Type</label>
+            <div class="type-toggle" role="group" aria-label="Entry type">
+              <button class="type-btn active" id="typeSale" data-type="sale" data-i18n="sale">Sale</button>
+              <button class="type-btn" id="typePurchase" data-type="purchase" data-i18n="purchase">Purchase</button>
+            </div>
+          </div>
+
+          <!-- Live total -->
+          <div class="total-preview">
+            <span data-i18n="total">Total (₹)</span>
+            <span class="total-amount" id="revTotal">₹0.00</span>
+          </div>
+        </div>
+
+        <!-- TTS playback -->
+        <div class="readback-row">
+          <span data-i18n="readback_playing">Reading back…</span>
+          <audio id="ttsAudio" aria-label="TTS readback audio"></audio>
+          <button class="btn-icon" id="replayBtn" aria-label="Replay readback" title="Replay">🔊</button>
+        </div>
+
+        <!-- Actions -->
+        <div class="review-actions">
+          <button class="btn-primary" id="saveBtn" data-i18n="save_entry">Save entry</button>
+          <button class="btn-secondary" id="rerecordBtn" data-i18n="rerecord">Re-record</button>
+          <button class="btn-ghost" id="discardBtn" data-i18n="discard">Discard</button>
+        </div>
+      </div>
+
+      <!-- Type-it fallback -->
+      <details class="type-fallback">
+        <summary data-i18n="manual_entry">⌨ Type it instead</summary>
+        <div class="type-fallback-body">
+          <input type="text" id="manualText" class="rev-input" placeholder="50 kilo rice 60 rupees" autocomplete="off"/>
+          <button class="btn-secondary" id="manualParseBtn" data-i18n="manual_save">Parse &amp; Review</button>
+        </div>
+      </details>
+    </section>
+
+    <!-- ══════════ TAB: LEDGER ══════════ -->
+    <section id="tab-ledger" class="tab-section" aria-label="Ledger">
+      <div class="ledger-toolbar">
+        <input type="search" id="ledgerSearch" class="search-input" data-i18n-placeholder="search_placeholder" placeholder="Search item…" aria-label="Search entries"/>
+        <div class="filter-group" role="group" aria-label="Filter by type">
+          <button class="filter-btn active" data-filter="" data-i18n="filter_all">All</button>
+          <button class="filter-btn" data-filter="sale" data-i18n="filter_sales">Sales</button>
+          <button class="filter-btn" data-filter="purchase" data-i18n="filter_purchases">Purchases</button>
+        </div>
+        <select id="dateRangeSelect" class="rev-select" aria-label="Date range">
+          <option value="" data-i18n="date_all">All time</option>
+          <option value="today" data-i18n="date_today">Today</option>
+          <option value="7d" data-i18n="date_7d">Last 7 days</option>
+          <option value="30d" data-i18n="date_30d">Last 30 days</option>
+        </select>
+        <div class="export-btns">
+          <button class="btn-export" id="exportXlsx" data-i18n="download_xlsx">⬇ Excel</button>
+          <button class="btn-export" id="exportCsv" data-i18n="download_csv">⬇ CSV</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="ledger-table" id="ledgerTable" aria-label="Ledger entries">
+          <thead>
+            <tr>
+              <th data-i18n="date">Date</th>
+              <th data-i18n="time">Time</th>
+              <th data-i18n="type">Type</th>
+              <th data-i18n="item">Item</th>
+              <th data-i18n="qty">Qty</th>
+              <th data-i18n="unit">Unit</th>
+              <th data-i18n="price">Price</th>
+              <th data-i18n="total">Total</th>
+              <th aria-label="Actions"></th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody"></tbody>
+          <tfoot id="ledgerFoot"></tfoot>
+        </table>
+        <div id="ledgerEmpty" class="empty-state" style="display:none">
+          <div class="empty-icon" aria-hidden="true">📒</div>
+          <p data-i18n="empty_table">No entries yet. Speak or type your first entry above.</p>
+          <button class="btn-secondary" id="ledgerDemoBtn" data-i18n="demo_data">Load demo entries</button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination" aria-label="Pagination">
+        <button class="page-btn" id="pagePrev" aria-label="Previous page" disabled>‹</button>
+        <span id="pageInfo" class="page-info"></span>
+        <button class="page-btn" id="pageNext" aria-label="Next page">›</button>
+      </div>
+    </section>
+
+    <!-- ══════════ TAB: REPORTS ══════════ -->
+    <section id="tab-reports" class="tab-section" aria-label="Reports">
+      <div class="reports-period">
+        <label for="reportPeriod" data-i18n="period">Period</label>
+        <select id="reportPeriod" class="rev-select">
+          <option value="today" data-i18n="date_today">Today</option>
+          <option value="7d" selected data-i18n="date_7d">Last 7 days</option>
+          <option value="30d" data-i18n="date_30d">Last 30 days</option>
+        </select>
+      </div>
+      <div class="reports-grid">
+        <div class="card">
+          <h2 class="card-title" data-i18n="sales_vs_purchases">Sales vs Purchases</h2>
+          <canvas id="reportDonut" aria-label="Sales vs purchases donut chart"></canvas>
+        </div>
+        <div class="card">
+          <h2 class="card-title" data-i18n="top_items">Top Items</h2>
+          <div id="reportTopItems"></div>
+        </div>
+        <div class="card stat-summary-card">
+          <h2 class="card-title" data-i18n="summary">Summary</h2>
+          <div id="reportSummary"></div>
+        </div>
+      </div>
+      <div class="report-export">
+        <button class="btn-export" id="reportExportXlsx" data-i18n="download_xlsx">⬇ Excel Report</button>
+      </div>
+    </section>
+
+    <!-- ══════════ TAB: SETTINGS ══════════ -->
+    <section id="tab-settings" class="tab-section" aria-label="Settings">
+      <div class="settings-grid">
+
+        <div class="card settings-section">
+          <h2 class="card-title" data-i18n="settings_shop">Shop</h2>
+          <div class="field-group">
+            <label for="shopNameInput" data-i18n="settings_shop_name">Shop Name</label>
+            <input type="text" id="shopNameInput" class="rev-input" maxlength="60"/>
+          </div>
+          <button class="btn-primary" id="saveShopName" data-i18n="save">Save</button>
+        </div>
+
+        <div class="card settings-section">
+          <h2 class="card-title" data-i18n="settings_language">Language</h2>
+          <div class="lang-toggle">
+            <button class="lang-btn active" id="settLangHi" aria-pressed="true">हिंदी</button>
+            <button class="lang-btn" id="settLangEn" aria-pressed="false">English</button>
+          </div>
+        </div>
+
+        <div class="card settings-section">
+          <h2 class="card-title" data-i18n="demo_data_title">Demo Data</h2>
+          <p class="settings-desc" data-i18n="demo_data_desc">Load realistic sample entries to explore the app. Clear them any time — your real entries are never touched.</p>
+          <div class="demo-actions">
+            <button class="btn-secondary" id="settLoadDemo" data-i18n="demo_data">Load demo entries</button>
+            <button class="btn-ghost" id="settClearDemo" data-i18n="clear_demo">Clear demo entries</button>
+          </div>
+        </div>
+
+        <div class="card settings-section" id="diagCard">
+          <h2 class="card-title" data-i18n="settings_diag">Connection Test</h2>
+          <p class="settings-desc" data-i18n="settings_diag_desc">Check API key, network reachability and ffmpeg availability.</p>
+          <button class="btn-secondary" id="testConnBtn" data-i18n="test_connection">Test connection</button>
+          <div id="diagResult" style="margin-top:12px;display:none"></div>
+        </div>
+
+        <div class="card settings-section">
+          <h2 class="card-title" data-i18n="how_it_works">How it works</h2>
+          <ol class="how-list">
+            <li data-i18n="how_step1">Tap Speak and say an entry</li>
+            <li data-i18n="how_step2">App hears, understands and reads it back</li>
+            <li data-i18n="how_step3">Confirm or correct, then it's saved</li>
+            <li data-i18n="how_step4">Download your ledger as Excel or CSV</li>
+          </ol>
+        </div>
+
+        <div class="card settings-section">
+          <h2 class="card-title" data-i18n="settings_examples">Supported Sentence Patterns</h2>
+          <ul class="example-list">
+            <li data-i18n="example_1">50 kilo rice 60 rupees per kilo</li>
+            <li data-i18n="example_2">2 litre milk 55 rupees per litre</li>
+            <li data-i18n="example_3">12 soap 30 rupees each</li>
+            <li>50 किलो चावल ₹60 किलो</li>
+            <li>दो लीटर दूध पचपन रुपये लीटर</li>
+            <li>dedh kg paneer 300 rupees</li>
+          </ul>
+        </div>
+
+        <div class="card settings-section">
+          <h2 class="card-title" data-i18n="privacy_title">Privacy &amp; Security</h2>
+          <p class="settings-desc" data-i18n="privacy_note">🔒 Audio is sent to Gnani only for transcription and is not stored.</p>
+          <p class="settings-desc" data-i18n="privacy_note2">No customer data is stored in the cloud. Your ledger lives locally on this device.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main><!-- /main -->
+
+</div><!-- /app -->
+
+<!-- Edit dialog -->
+<dialog id="editDialog" aria-modal="true" aria-labelledby="editDialogTitle">
+  <div class="dialog-inner">
+    <h2 id="editDialogTitle" data-i18n="edit_entry">Edit Entry</h2>
+    <input type="hidden" id="editId"/>
+    <div class="field-group">
+      <label for="editItem" data-i18n="item">Item</label>
+      <input type="text" id="editItem" class="rev-input"/>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label for="editQty" data-i18n="qty">Quantity</label>
+        <input type="number" id="editQty" class="rev-input" min="0" step="0.01"/>
+      </div>
+      <div class="field-group">
+        <label for="editUnit" data-i18n="unit">Unit</label>
+        <select id="editUnit" class="rev-select"></select>
+      </div>
+    </div>
+    <div class="field-group">
+      <label for="editPrice" data-i18n="price">Price (₹/unit)</label>
+      <input type="number" id="editPrice" class="rev-input" min="0" step="0.01"/>
+    </div>
+    <div class="total-preview">
+      <span data-i18n="total">Total</span>
+      <span class="total-amount" id="editTotal">₹0.00</span>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="editSaveBtn" data-i18n="save">Save</button>
+      <button class="btn-ghost" id="editCancelBtn" data-i18n="cancel">Cancel</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Delete confirm dialog -->
+<dialog id="deleteDialog" aria-modal="true" aria-labelledby="deleteDialogTitle">
+  <div class="dialog-inner">
+    <h2 id="deleteDialogTitle" data-i18n="delete_confirm_title">Delete entry?</h2>
+    <p data-i18n="delete_confirm_body">This action cannot be undone.</p>
+    <div class="dialog-actions">
+      <button class="btn-danger" id="deleteConfirmBtn" data-i18n="delete">Delete</button>
+      <button class="btn-ghost" id="deleteCancelBtn" data-i18n="cancel">Cancel</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Mobile bottom tab bar -->
+<nav id="bottomBar" class="bottom-bar" aria-label="Mobile navigation">
+  <a href="#dashboard" class="bottom-tab active" data-tab="dashboard" aria-label="Dashboard">
+    <span aria-hidden="true">📊</span>
+    <span data-i18n="nav_dashboard">Dashboard</span>
+  </a>
+  <a href="#speak" class="bottom-tab" data-tab="speak" aria-label="Speak">
+    <span aria-hidden="true">🎙️</span>
+    <span data-i18n="nav_speak">Speak</span>
+  </a>
+  <a href="#ledger" class="bottom-tab" data-tab="ledger" aria-label="Ledger">
+    <span aria-hidden="true">📒</span>
+    <span data-i18n="nav_ledger">Ledger</span>
+  </a>
+  <a href="#reports" class="bottom-tab" data-tab="reports" aria-label="Reports">
+    <span aria-hidden="true">📈</span>
+    <span data-i18n="nav_reports">Reports</span>
+  </a>
+  <a href="#settings" class="bottom-tab" data-tab="settings" aria-label="Settings">
+    <span aria-hidden="true">⚙️</span>
+    <span data-i18n="nav_settings">Settings</span>
+  </a>
+</nav>
+
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>
+
