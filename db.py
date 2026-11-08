@@ -176,6 +176,38 @@ def list_entries(path: str | None = None) -> list[dict]:
         conn.close()
 
 
+def today_stats(path: str | None = None) -> dict:
+    """
+    Return a dict with today's sales total, purchases total, net, and entry count.
+    All values are for today (IST date).
+    Returns {sales: float, purchases: float, net: float, count: int}
+    """
+    today = _today_ist()
+    conn  = _connect(path)
+    try:
+        rows = conn.execute(
+            """
+            SELECT entry_type, SUM(total) AS total, COUNT(*) AS cnt
+              FROM entries
+             WHERE created_at LIKE ?
+             GROUP BY entry_type
+            """,
+            (f"{today}%",),
+        ).fetchall()
+        sales = purchases = 0.0
+        count = 0
+        for r in rows:
+            if r["entry_type"] == "sale":
+                sales = float(r["total"])
+                count += r["cnt"]
+            elif r["entry_type"] == "purchase":
+                purchases = float(r["total"])
+                count += r["cnt"]
+        return {"sales": sales, "purchases": purchases, "net": round(sales - purchases, 2), "count": count}
+    finally:
+        conn.close()
+
+
 def today_total(path: str | None = None) -> float:
     """
     Return the sum of `total` for all *sale* entries recorded today (IST date).

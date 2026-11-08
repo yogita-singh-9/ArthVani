@@ -97,6 +97,7 @@ _STRINGS: dict[str, dict[str, str]] = {
     "demo_data":      {"en": "Load demo entries",   "hi": "डेमो एंट्री लोड करें"},
     "demo_loaded":    {"en": "5 demo entries loaded (synthetic data).",
                        "hi": "5 डेमो एंट्री लोड हुईं (नकली डेटा)।"},
+    "clear_demo":     {"en": "Clear demo entries",  "hi": "डेमो एंट्री हटाएं"},
 
     # Sidebar / info
     "powered_by":     {"en": "Powered by Gnani AI Prisma & Timbre",
@@ -110,6 +111,43 @@ _STRINGS: dict[str, dict[str, str]] = {
     # Review / warnings
     "needs_review":   {"en": "⚠ Some fields could not be detected. Please fill them in.",
                        "hi": "⚠ कुछ फ़ील्ड नहीं मिलीं। कृपया भरें।"},
+
+    # Dashboard stats
+    "today_sales":    {"en": "Today's Sales",       "hi": "आज की बिक्री"},
+    "today_purchases":{"en": "Today's Purchases",   "hi": "आज की खरीद"},
+    "today_net":      {"en": "Net",                 "hi": "शुद्ध"},
+    "today_entries":  {"en": "Entries",             "hi": "एंट्री"},
+
+    # Stepper steps
+    "step_listen":    {"en": "Listening",           "hi": "सुन रहे"},
+    "step_understand":{"en": "Understanding",       "hi": "समझ रहे"},
+    "step_readback":  {"en": "Reading back",        "hi": "पढ़ रहे"},
+    "step_saved":     {"en": "Saved",               "hi": "सेव"},
+
+    # Ledger filters
+    "filter_all":     {"en": "All",                 "hi": "सभी"},
+    "filter_sales":   {"en": "Sales only",          "hi": "केवल बिक्री"},
+    "filter_purchases":{"en": "Purchases only",     "hi": "केवल खरीद"},
+    "search_placeholder": {"en": "Search item…",   "hi": "सामान खोजें…"},
+
+    # How it works
+    "how_it_works":   {"en": "How it works",        "hi": "कैसे काम करता है"},
+    "how_step1":      {"en": "1. Tap Speak and say an entry",
+                       "hi": "1. बोलिए दबाएं और एंट्री बोलें"},
+    "how_step2":      {"en": "2. App hears, understands and reads it back",
+                       "hi": "2. ऐप सुनेगा, समझेगा और पढ़कर सुनाएगा"},
+    "how_step3":      {"en": "3. Confirm or correct, then it's saved",
+                       "hi": "3. पुष्टि करें या सुधारें, एंट्री सेव हो जाएगी"},
+    "how_step4":      {"en": "4. Download your ledger as Excel or CSV",
+                       "hi": "4. Excel या CSV में बही-खाता डाउनलोड करें"},
+
+    # Sentence examples
+    "example_1":      {"en": "\"50 kilo rice 60 rupees per kilo\"",
+                       "hi": '"50 किलो चावल 60 रुपये किलो"'},
+    "example_2":      {"en": "\"2 litre milk 55 rupees per litre\"",
+                       "hi": '"2 लीटर दूध 55 रुपये लीटर"'},
+    "example_3":      {"en": "\"12 soap 30 rupees each\"",
+                       "hi": '"12 साबुन 30 रुपये प्रति"'},
 
     # Errors
     "error_no_audio":    {"en": "No audio received. Please try again.",

@@ -1,170 +1,615 @@
 /*
- * theme.css — ArthVani design system (PRD §11)
+ * theme.css — ArthVani Design System v2.0
  *
- * Colour palette:
- *   #4ABA94  Boombox Teal    — primary buttons, links, accents
- *   #D0542D  Rust Orange     — recording state, Wrong button, errors
- *   #FFEDB7  Cream           — page background (set in config.toml)
- *   #685B53  Warm Grey       — captions, borders, secondary text
- *   #2B3A39  Deep Teal-Charcoal — main text, headings
+ * Design concept: "Retro Teal Boombox meets Modern Fintech"
+ * Warm, tactile, friendly, premium. Inspired by Indian kiranas.
+ *
+ * CSS Variables (edit here, cascade everywhere):
+ *   --teal     #4ABA94  Boombox Teal    — primary actions, success
+ *   --teal-dk  #38a07d  Deep Teal       — hover states
+ *   --teal-lt  #c5ede0  Teal tint       — backgrounds
+ *   --rust     #D0542D  Rust Orange     — recording, error, destructive
+ *   --rust-lt  #fff3ee  Rust tint       — error backgrounds
+ *   --cream    #FFEDB7  Cream           — page background
+ *   --cream-lt #FFF6DA  Light Cream     — card backgrounds
+ *   --grey     #685B53  Warm Grey       — captions, borders
+ *   --ink      #2B3A39  Deep Teal-Charcoal — main text
  *
  * Loaded via st.markdown(<style>, unsafe_allow_html=True) in app.py.
- * We only target stable, documented Streamlit elements. Fallback: if a
- * class changes in a future Streamlit release, the app still works —
- * it just loses the custom styling.
  */
 
 /* ── Google Fonts ──────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
 
-/* ── Global typography ─────────────────────────────────────────────────────── */
-html, body, [class*="css"] {
-    font-family: 'Poppins', 'Noto Sans Devanagari', system-ui, sans-serif;
-    font-size: 16px;
-    color: #2B3A39;
+/* ── CSS Custom Properties ─────────────────────────────────────────────────── */
+:root {
+  --teal:        #4ABA94;
+  --teal-dk:     #38a07d;
+  --teal-lt:     #c5ede0;
+  --teal-xlt:    #edfaf4;
+  --rust:        #D0542D;
+  --rust-dk:     #b8441e;
+  --rust-lt:     #fff3ee;
+  --cream:       #FFEDB7;
+  --cream-lt:    #FFF6DA;
+  --cream-xlt:   #fffcf0;
+  --grey:        #685B53;
+  --grey-lt:     #b0a49e;
+  --ink:         #2B3A39;
+  --radius-sm:   8px;
+  --radius:      14px;
+  --radius-lg:   20px;
+  --shadow:      0 2px 12px rgba(43,58,57,0.10);
+  --shadow-lg:   0 8px 32px rgba(43,58,57,0.14);
+  --transition:  0.18s ease;
 }
 
-/* ── Header band ───────────────────────────────────────────────────────────── */
+/* ── Global reset & typography ─────────────────────────────────────────────── */
+html, body, [class*="css"] {
+    font-family: 'Poppins', 'Noto Sans Devanagari', system-ui, sans-serif !important;
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Devanagari needs a taller line-height */
+*:lang(hi), .hi-text {
+    font-family: 'Noto Sans Devanagari', 'Poppins', system-ui, sans-serif !important;
+    line-height: 1.8;
+}
+
+/* Tighten Streamlit's default padding */
+.block-container {
+    padding-top: 1.2rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 760px !important;
+}
+
+/* Hide Streamlit footer and hamburger */
+#MainMenu, footer, header { visibility: hidden !important; }
+
+/* ── Header / Boombox Banner ───────────────────────────────────────────────── */
 .av-header {
-    background: #2B3A39;
-    color: #FFEDB7;
-    border-radius: 14px;
-    padding: 1.1rem 1.4rem 0.9rem;
-    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--ink) 0%, #1a2928 100%);
+    color: var(--cream);
+    border-radius: var(--radius-lg);
+    padding: 1.2rem 1.6rem 1rem;
+    margin-bottom: 1.2rem;
     display: flex;
     align-items: center;
     gap: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
 }
 
-/* Speaker-grille decorative strip (thin vertical lines) */
+/* Faint speaker-cone watermark behind the header */
+.av-header::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 24px solid rgba(74,186,148,0.08);
+    pointer-events: none;
+}
+.av-header::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 16px solid rgba(74,186,148,0.05);
+    pointer-events: none;
+}
+
+/* Speaker-grille decorative strip */
 .av-grille {
     display: flex;
     gap: 4px;
     align-items: stretch;
-    height: 36px;
+    height: 42px;
     flex-shrink: 0;
 }
 .av-grille span {
     display: block;
     width: 3px;
-    background: #4ABA94;
+    background: var(--teal);
     border-radius: 2px;
     opacity: 0.75;
+    animation: grille-pulse 2.4s ease-in-out infinite;
 }
-.av-grille span:nth-child(even) { opacity: 0.4; }
+.av-grille span:nth-child(1)  { animation-delay: 0.0s; opacity: 0.9; }
+.av-grille span:nth-child(2)  { animation-delay: 0.2s; opacity: 0.6; }
+.av-grille span:nth-child(3)  { animation-delay: 0.4s; opacity: 1.0; }
+.av-grille span:nth-child(4)  { animation-delay: 0.1s; opacity: 0.5; }
+.av-grille span:nth-child(5)  { animation-delay: 0.3s; opacity: 0.8; }
+.av-grille span:nth-child(6)  { animation-delay: 0.5s; opacity: 0.4; }
+.av-grille span:nth-child(7)  { animation-delay: 0.2s; opacity: 0.7; }
+.av-grille span:nth-child(8)  { animation-delay: 0.6s; opacity: 0.6; }
+.av-grille span:nth-child(9)  { animation-delay: 0.1s; opacity: 0.9; }
+
+@keyframes grille-pulse {
+    0%, 100% { transform: scaleY(1); }
+    50%       { transform: scaleY(0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .av-grille span { animation: none; }
+}
+
+.av-logo-wrap { flex-shrink: 0; }
 
 .av-wordmark {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #FFEDB7;
-    letter-spacing: 0.02em;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--cream);
+    letter-spacing: 0.01em;
     line-height: 1.1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
+.av-wordmark .av-rupee {
+    color: var(--teal);
+    font-size: 1.3rem;
+}
+
 .av-tagline {
     font-size: 0.82rem;
-    color: #4ABA94;
+    color: var(--teal);
     margin-top: 2px;
-    font-weight: 400;
+    font-weight: 500;
+    letter-spacing: 0.02em;
 }
+
+/* ── Segmented language toggle ─────────────────────────────────────────────── */
+.av-lang-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.1);
+    border-radius: 100px;
+    padding: 3px;
+    gap: 2px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.av-lang-toggle a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255,237,183,0.65);
+    text-decoration: none;
+    min-height: 36px;
+    min-width: 60px;
+    transition: all var(--transition);
+    cursor: pointer;
+}
+.av-lang-toggle a.active {
+    background: var(--teal);
+    color: var(--ink);
+}
+
+/* ── Stat-cards row (dashboard) ────────────────────────────────────────────── */
+.av-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.2rem;
+}
+@media (max-width: 600px) {
+    .av-stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+.av-stat {
+    background: var(--cream-lt);
+    border: 1.5px solid rgba(104,91,83,0.25);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    text-align: center;
+    transition: box-shadow var(--transition);
+}
+.av-stat:hover { box-shadow: var(--shadow); }
+
+.av-stat-icon {
+    font-size: 1.3rem;
+    margin-bottom: 0.2rem;
+    display: block;
+}
+.av-stat-label {
+    font-size: 0.7rem;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.av-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-top: 0.1rem;
+}
+.av-stat-value.teal  { color: var(--teal-dk); }
+.av-stat-value.rust  { color: var(--rust); }
 
 /* ── Cards ─────────────────────────────────────────────────────────────────── */
 .av-card {
-    background: #FFF6DA;
-    border: 1.5px solid #685B53;
-    border-radius: 14px;
-    padding: 1rem 1.2rem;
-    margin-bottom: 0.8rem;
+    background: var(--cream-lt);
+    border: 1.5px solid rgba(104,91,83,0.25);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 0.9rem;
+    box-shadow: var(--shadow);
+}
+.av-card-teal  { border-color: var(--teal); border-width: 2px; }
+.av-card-rust  { border-color: var(--rust); border-width: 2px; }
+.av-card-dark  {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: transparent;
 }
 
-.av-card-teal {
-    border-color: #4ABA94;
-    border-width: 2px;
+/* ── Speak section ─────────────────────────────────────────────────────────── */
+.av-speak-wrap {
+    text-align: center;
+    padding: 1.5rem 0 0.5rem;
 }
 
-/* ── Today's total ─────────────────────────────────────────────────────────── */
-.av-today-label {
-    font-size: 0.8rem;
-    color: #685B53;
+.av-speak-hint {
+    font-size: 0.85rem;
+    color: var(--grey);
+    margin-bottom: 0.6rem;
+}
+
+/* Hint chips */
+.av-hints {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+.av-chip {
+    background: var(--cream);
+    border: 1.5px solid rgba(104,91,83,0.3);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    color: var(--grey);
+    font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
+    white-space: nowrap;
+}
+
+/* ── Pipeline stepper ──────────────────────────────────────────────────────── */
+.av-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 0.6rem 0 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.av-step {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--grey-lt);
+    padding: 0 8px;
+}
+.av-step.done   { color: var(--teal-dk); }
+.av-step.active { color: var(--ink); }
+.av-step-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+.av-step.active .av-step-dot {
+    animation: dot-pulse 1.2s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%       { transform: scale(1.6); opacity: 0.6; }
+}
+.av-step-line {
+    height: 1px;
+    width: 24px;
+    background: rgba(104,91,83,0.25);
+    flex-shrink: 0;
+}
+
+/* ── Transcript bubble ─────────────────────────────────────────────────────── */
+.av-bubble {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 16px 16px 16px 4px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    margin: 0.5rem 0 1rem;
+    display: inline-block;
+    max-width: 100%;
+    word-break: break-word;
+    line-height: 1.6;
+    box-shadow: var(--shadow);
+}
+.av-bubble-label {
+    font-size: 0.7rem;
+    color: var(--grey);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.2rem;
+}
+
+/* ── Confirmation card fields ──────────────────────────────────────────────── */
+.av-confirm-total {
+    text-align: center;
+    padding: 0.8rem 0;
+    border-top: 1px dashed rgba(104,91,83,0.3);
+    margin-top: 0.6rem;
+}
+.av-confirm-total-label {
+    font-size: 0.72rem;
+    color: var(--grey);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-weight: 600;
 }
-.av-today-amount {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #2B3A39;
+.av-confirm-total-value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--teal-dk);
     line-height: 1.1;
 }
 
-/* ── Buttons — teal primary (dark text, never white on teal) ───────────────── */
-div[data-testid="stButton"] > button[kind="primary"],
-div[data-testid="stButton"] > button.av-btn-primary {
-    background-color: #4ABA94 !important;
-    color: #2B3A39 !important;
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+/* Primary (Correct / Save) — teal, dark text */
+div[data-testid="stButton"] > button[kind="primary"] {
+    background: var(--teal) !important;
+    color: var(--ink) !important;
     border: none !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
-    min-height: 48px !important;
-    padding: 0.5rem 1.4rem !important;
+    min-height: 52px !important;
+    padding: 0.5rem 1.6rem !important;
+    transition: background var(--transition) !important;
+    box-shadow: 0 4px 14px rgba(74,186,148,0.35) !important;
+    letter-spacing: 0.01em !important;
 }
 div[data-testid="stButton"] > button[kind="primary"]:hover {
-    background-color: #38a07d !important;
+    background: var(--teal-dk) !important;
+    box-shadow: 0 6px 20px rgba(74,186,148,0.45) !important;
+}
+div[data-testid="stButton"] > button[kind="primary"]:active {
+    transform: translateY(1px) !important;
 }
 
-/* ── Wrong / secondary button — rust ──────────────────────────────────────── */
-.av-btn-wrong button {
-    background-color: #D0542D !important;
+/* Secondary default buttons */
+div[data-testid="stButton"] > button[kind="secondary"] {
+    background: var(--cream-lt) !important;
+    color: var(--ink) !important;
+    border: 1.5px solid rgba(104,91,83,0.3) !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    min-height: 52px !important;
+    transition: all var(--transition) !important;
+}
+div[data-testid="stButton"] > button[kind="secondary"]:hover {
+    border-color: var(--teal) !important;
+    color: var(--teal-dk) !important;
+}
+
+/* Wrong / danger button — rust */
+.av-btn-wrong button, .av-btn-wrong > div > button {
+    background: var(--rust) !important;
     color: #fff !important;
     border: none !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     font-weight: 700 !important;
-    font-size: 1.1rem !important;
-    min-height: 48px !important;
+    font-size: 1rem !important;
+    min-height: 52px !important;
+    box-shadow: 0 4px 14px rgba(208,84,45,0.3) !important;
+    transition: background var(--transition) !important;
+}
+.av-btn-wrong button:hover, .av-btn-wrong > div > button:hover {
+    background: var(--rust-dk) !important;
 }
 
-/* ── Error / warning notes ─────────────────────────────────────────────────── */
+/* ── Notices ───────────────────────────────────────────────────────────────── */
 .av-warning {
-    border: 2px solid #D0542D;
-    border-radius: 10px;
-    background: #fff3ee;
-    color: #2B3A39;
+    border: 2px solid var(--rust);
+    border-radius: var(--radius-sm);
+    background: var(--rust-lt);
+    color: var(--ink);
+    padding: 0.65rem 1rem;
+    font-size: 0.88rem;
+    margin-bottom: 0.6rem;
+}
+.av-success {
+    border: 2px solid var(--teal);
+    border-radius: var(--radius-sm);
+    background: var(--teal-xlt);
+    color: var(--ink);
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
     margin-bottom: 0.6rem;
 }
-
-/* ── Success notice ─────────────────────────────────────────────────────────── */
-.av-success {
-    border: 2px solid #4ABA94;
-    border-radius: 10px;
-    background: #edfaf4;
-    color: #2B3A39;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+.av-info {
+    border: 1.5px solid rgba(104,91,83,0.3);
+    border-radius: var(--radius-sm);
+    background: var(--cream-lt);
+    color: var(--grey);
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
     margin-bottom: 0.6rem;
 }
 
-/* ── Ledger table ───────────────────────────────────────────────────────────── */
-div[data-testid="stDataFrame"] {
-    border-radius: 12px;
+/* ── Type / Sale / Purchase pills ──────────────────────────────────────────── */
+.av-pill {
+    display: inline-block;
+    border-radius: 100px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.av-pill-sale     { background: var(--teal-xlt); color: var(--teal-dk); }
+.av-pill-purchase { background: var(--rust-lt);  color: var(--rust-dk); }
+
+/* ── Ledger table (custom HTML) ────────────────────────────────────────────── */
+.av-table-wrap {
+    border-radius: var(--radius);
     overflow: hidden;
-    border: 1.5px solid #685B53;
+    border: 1.5px solid rgba(104,91,83,0.25);
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+}
+.av-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+.av-table thead th {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+.av-table thead th:last-child { text-align: right; }
+.av-table tbody tr {
+    border-bottom: 1px solid rgba(104,91,83,0.12);
+    transition: background var(--transition);
+}
+.av-table tbody tr:last-child { border-bottom: none; }
+.av-table tbody tr:nth-child(even) { background: rgba(255,246,218,0.5); }
+.av-table tbody tr:hover { background: var(--teal-xlt); }
+.av-table td {
+    padding: 0.65rem 0.9rem;
+    color: var(--ink);
+    vertical-align: middle;
+}
+.av-table td:last-child { text-align: right; font-weight: 700; color: var(--teal-dk); }
+.av-table .av-table-item { font-weight: 500; }
+
+/* ── Ledger search/filter bar ──────────────────────────────────────────────── */
+.av-filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+/* ── Empty state ───────────────────────────────────────────────────────────── */
+.av-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--grey);
+}
+.av-empty-icon { font-size: 3rem; margin-bottom: 0.5rem; display: block; }
+.av-empty-title { font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+.av-empty-sub { font-size: 0.85rem; }
+
+/* ── Section headers ───────────────────────────────────────────────────────── */
+.av-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 1.5rem 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.av-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(104,91,83,0.2);
+    margin-left: 0.5rem;
+}
+
+/* ── Audio player override ─────────────────────────────────────────────────── */
+audio {
+    border-radius: var(--radius-sm);
+    width: 100%;
+    accent-color: var(--teal);
+}
+
+/* ── Input fields ──────────────────────────────────────────────────────────── */
+div[data-testid="stNumberInput"] input,
+div[data-testid="stTextInput"] input,
+div[data-testid="stSelectbox"] select {
+    border-radius: var(--radius-sm) !important;
+    border-color: rgba(104,91,83,0.3) !important;
+    font-size: 0.95rem !important;
+}
+div[data-testid="stNumberInput"] input:focus,
+div[data-testid="stTextInput"] input:focus {
+    border-color: var(--teal) !important;
+    box-shadow: 0 0 0 2px rgba(74,186,148,0.2) !important;
+}
+
+/* ── Expander ──────────────────────────────────────────────────────────────── */
+details[data-testid="stExpander"] {
+    border-radius: var(--radius) !important;
+    border: 1.5px solid rgba(104,91,83,0.2) !important;
+    background: var(--cream-lt) !important;
 }
 
 /* ── Sidebar ────────────────────────────────────────────────────────────────── */
 section[data-testid="stSidebar"] {
-    background: #FFF6DA;
-    border-right: 1.5px solid #685B53;
+    background: var(--cream-lt) !important;
+    border-right: 1.5px solid rgba(104,91,83,0.15) !important;
+}
+section[data-testid="stSidebar"] .block-container {
+    max-width: none !important;
 }
 
-/* ── Responsive: phone width ≈ 390px ──────────────────────────────────────── */
-@media (max-width: 450px) {
+/* ── Success animation ─────────────────────────────────────────────────────── */
+@keyframes pop-in {
+    0%   { transform: scale(0.8); opacity: 0; }
+    70%  { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.av-pop { animation: pop-in 0.3s ease; }
+
+/* ── Spinner override ──────────────────────────────────────────────────────── */
+div[data-testid="stSpinner"] > div {
+    border-top-color: var(--teal) !important;
+}
+
+/* ── Responsive: phone ≤ 480px ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
     .av-wordmark  { font-size: 1.3rem; }
-    .av-today-amount { font-size: 1.7rem; }
-    .av-header    { padding: 0.8rem 1rem; }
+    .av-header    { padding: 0.9rem 1rem; border-radius: var(--radius); }
+    .av-confirm-total-value { font-size: 1.8rem; }
+    .av-stat-value { font-size: 1.1rem; }
+    .av-stat-label { font-size: 0.65rem; }
+    .av-table { font-size: 0.78rem; }
+    .av-table thead th { padding: 0.5rem 0.6rem; }
+    .av-table td { padding: 0.5rem 0.6rem; }
     div[data-testid="stButton"] > button {
-        min-height: 52px !important;   /* larger tap target on phone */
+        min-height: 56px !important;
     }
 }
-
