@@ -51,8 +51,9 @@ from pydantic import BaseModel
 import db as _db
 import gnani as _gnani
 from parser import parse as _parse
-from speech_text import build_readback
+from speech_text import build_readback, build_short_readback, build_query_response
 from strings import _STRINGS, UNIT_LABELS, UNIT_OPTIONS, t
+from voice_commands import classify as _classify_command, requires_explicit_confirmation
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
@@ -305,6 +306,166 @@ async def demo_load():
 async def demo_clear():
     deleted = _db.clear_demo_entries(_DB_PATH)
     return {"deleted": deleted, "message": f"{deleted} demo entries removed."}
+
+
+# ── Voice Mode: Command Classification ────────────────────────────────────────
+
+class ClassifyRequest(BaseModel):
+    text:     str
+    language: str = "hi"
+
+
+@app.post("/api/voice/classify")
+async def voice_classify(req: ClassifyRequest):
+    """Classify a voice utterance as an intent (command vs entry)."""
+    if req.language not in ("hi", "en"):
+        raise HTTPException(400, "language must be 'hi' or 'en'")
+    intent = _classify_command(req.text, req.language)
+    return intent
+
+
+# ── Voice Mode: Price Memory ───────────────────────────────────────────────────
+
+@app.get("/api/voice/last-price")
+async def voice_last_price(
+    item: str = Query(...),
+    unit: str | None = Query(None),
+):
+    """Return the last known price for an item (fuzzy match)."""
+    price = _db.last_price(item, unit, _DB_PATH)
+    return {"item": item, "unit": unit, "last_price": price}
+
+
+# ── Voice Mode: Day Summary ────────────────────────────────────────────────────
+
+@app.get("/api/voice/day-summary")
+async def voice_day_summary(lang: str = Query("hi")):
+    """Return today's summary and a TTS-ready spoken sentence."""
+    if lang not in ("hi", "en"):
+        lang = "hi"
+    data = _db.day_summary(_DB_PATH)
+    spoken = build_query_response("daily_summary", data, lang)
+    return {"data": data, "spoken": spoken}
+
+
+# ── Voice Mode: Query Response ─────────────────────────────────────────────────
+
+class QueryRequest(BaseModel):
+    query_type: str   # "today_total" | "week_total" | "daily_summary" | "last_entry" | "item_total"
+    language:   str = "hi"
+    item:       str | None = None   # for item_total only
+
+
+@app.post("/api/voice/query")
+async def voice_query(req: QueryRequest):
+    """Answer a voice query and return a TTS-ready spoken sentence."""
+    if req.language not in ("hi", "en"):
+        raise HTTPException(400, "language must be 'hi' or 'en'")
+
+    qt = req.query_type
+    if qt == "today_total":
+        data = _db.day_summary(_DB_PATH)
+        spoken = build_query_response("today_total", data, req.language)
+        return {"spoken": spoken, "data": data}
+
+    if qt == "week_total":
+        data = _db.summary_stats(_DB_PATH)
+        spoken = build_query_response("week_total", data, req.language)
+        return {"spoken": spoken, "data": data}
+
+    if qt == "daily_summary":
+        data = _db.day_summary(_DB_PATH)
+        spoken = build_query_response("daily_summary", data, req.language)
+        return {"spoken": spoken, "data": data}
+
+    if qt == "last_entry":
+        data = _db.summary_stats(_DB_PATH)
+        spoken = build_query_response("last_entry", data, req.language)
+        return {"spoken": spoken, "data": data}
+
+    if qt == "item_total":
+        item = req.item or ""
+        # Sum today's sales for this item (fuzzy not needed here — exact name from STT)
+        rows = _db.list_entries(
+            _DB_PATH, filter_type="sale",
+            search=item, date_from=None, date_to=None,
+            limit=500, offset=0
+        )
+        import datetime as _dt
+        today = _dt.date.today().isoformat()
+        total = sum(r["total"] for r in rows if r.get("created_at", "").startswith(today))
+        idata = {"item": item, "total": round(total, 2)}
+        spoken = build_query_response("item_total", idata, req.language)
+        return {"spoken": spoken, "data": idata}
+
+    raise HTTPException(400, f"Unknown query_type: {qt!r}")
+
+
+# ── Voice Mode: Short Transcribe (returns short readback + price-memory fill) ──
+
+@app.post("/api/voice/transcribe")
+async def voice_transcribe(
+    audio_file: UploadFile = File(...),
+    language:   str        = Form("hi"),
+    mode:       str        = Form("quick"),    # quick | strict
+    high_value: float      = Form(10_000.0),
+):
+    """
+    Voice-mode transcribe: STT → parse → price-memory fill → short readback.
+    Returns parsed entry, short readback text, explicit_required flag, timeout.
+    """
+    if language not in ("hi", "en"):
+        raise HTTPException(400, "language must be 'hi' or 'en'")
+
+    audio_bytes = await audio_file.read()
+    if not audio_bytes:
+        raise HTTPException(400, _safe_err("error_no_audio", language))
+    if len(audio_bytes) > 10 * 1024 * 1024:
+        raise HTTPException(413, _safe_err("error_audio_too_long", language))
+
+    audio_bytes = _ensure_wav(audio_bytes)
+
+    lang_code = "hi-IN" if language == "hi" else "en-IN"
+    try:
+        stt_result = _gnani.stt(audio_bytes, lang_code)
+    except EnvironmentError as exc:
+        raise HTTPException(503, _safe_err("error_no_key", language)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(502, _safe_err("error_stt", language, str(exc))) from exc
+
+    parsed = _parse(stt_result, language)
+
+    # Price memory: fill missing price from last known
+    filled_from_memory = False
+    if parsed.get("item") and parsed.get("quantity") is not None and parsed.get("price") is None:
+        last_p = _db.last_price(parsed["item"], parsed.get("unit"), _DB_PATH)
+        if last_p is not None:
+            parsed["price"] = last_p
+            if parsed.get("quantity") is not None:
+                parsed["total"] = round(float(parsed["quantity"]) * last_p, 2)
+            filled_from_memory = True
+
+    # Explicit confirmation needed?
+    last_known = _db.last_price(parsed.get("item", ""), parsed.get("unit"), _DB_PATH) if parsed.get("item") else None
+    explicit_required = requires_explicit_confirmation(
+        parsed, mode=mode,
+        high_value_threshold=high_value,
+        last_known_price=last_known,
+    )
+
+    short_readback  = build_short_readback(parsed, language, filled_from_memory)
+    full_readback   = build_readback(parsed, language)
+    timeout_secs    = 3 if (mode == "quick" and not explicit_required) else 8
+
+    return {
+        "transcript":        stt_result.get("transcript", ""),
+        "parsed":            parsed,
+        "readback":          full_readback,
+        "short_readback":    short_readback,
+        "filled_from_memory": filled_from_memory,
+        "explicit_required": explicit_required,
+        "timeout_secs":      timeout_secs,
+    }
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

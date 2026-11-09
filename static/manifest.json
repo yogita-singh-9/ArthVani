@@ -1,0 +1,37 @@
+{
+  "name": "ArthVani – बोलिए, हिसाब हो जाएगा",
+  "short_name": "ArthVani",
+  "description": "Voice-first ledger for small traders and kirana shops. बोलिए, हिसाब हो जाएगा।",
+  "start_url": "/#dashboard",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2A0E22",
+  "theme_color": "#2A0E22",
+  "lang": "hi",
+  "icons": [
+    {
+      "src": "/brand/png/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/png/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/app-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/png/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

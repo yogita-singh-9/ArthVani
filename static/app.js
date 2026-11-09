@@ -67,6 +67,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireReportsTab();
   wireSettingsTab();
   wireTopbar();
+  setupOfflineBanner();
+  setupResponsiveListeners();
+  // Wire shop mode (defined in shop_mode.js, loaded before this module)
+  if (typeof window.wireShopMode === 'function') window.wireShopMode();
   routeHash();
   window.addEventListener('hashchange', routeHash);
 });
@@ -130,7 +134,7 @@ function populateUnitSelects() {
 
 function applyLangUI(lang) {
   document.documentElement.lang = lang === 'hi' ? 'hi' : 'en';
-  ['langHi','langEn','settLangHi','settLangEn'].forEach(id => {
+  ['langHi','langEn','settLangHi','settLangEn','topbarLangHi','topbarLangEn'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     const isHi = id.endsWith('Hi');
@@ -149,6 +153,8 @@ function switchLang(lang) {
     refreshDashboard();
     refreshLedger();
     refreshReports();
+    // Notify shop_mode.js of language change
+    document.dispatchEvent(new CustomEvent('av:langchanged'));
   });
 }
 
@@ -179,10 +185,14 @@ function showTab(tabId) {
   const pageTitle = document.getElementById('pageTitle');
   if (pageTitle) pageTitle.textContent = title;
 
-  // Show topbar Record button only on non-record pages
+  // Show topbar Record button only on non-record pages (desktop only)
   const topbarSpeakBtn = document.getElementById('topbarSpeakBtn');
   if (topbarSpeakBtn) {
-    topbarSpeakBtn.style.display = (tabId === 'speak') ? 'none' : 'inline-flex';
+    if (window.innerWidth <= 768 || tabId === 'speak') {
+      topbarSpeakBtn.style.display = 'none';
+    } else {
+      topbarSpeakBtn.style.display = 'inline-flex';
+    }
   }
 
   // Lazy-load data
@@ -234,11 +244,20 @@ function wireSidebar() {
     overlay.classList.remove('show');
     toggle?.setAttribute('aria-expanded', 'false');
   });
+  sidebar?.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
 }
 
 function wireLangButtons() {
   document.getElementById('langHi')?.addEventListener('click', () => switchLang('hi'));
   document.getElementById('langEn')?.addEventListener('click', () => switchLang('en'));
+  document.getElementById('topbarLangHi')?.addEventListener('click', () => switchLang('hi'));
+  document.getElementById('topbarLangEn')?.addEventListener('click', () => switchLang('en'));
   document.getElementById('settLangHi')?.addEventListener('click', () => switchLang('hi'));
   document.getElementById('settLangEn')?.addEventListener('click', () => switchLang('en'));
 }
@@ -433,6 +452,10 @@ function renderChart(series) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
       plugins: {
         legend: {
           labels: {
@@ -452,7 +475,13 @@ function renderChart(series) {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#6E5E69', font: { family: 'Inter', size: 11 } }
+          ticks: {
+            color: '#6E5E69',
+            font: { family: 'Inter', size: 11 },
+            autoSkip: true,
+            maxTicksLimit: window.innerWidth < 480 ? 6 : (window.innerWidth < 768 ? 8 : 14),
+            maxRotation: 0,
+          }
         },
         y: {
           grid: { color: '#F4EFF2' },
@@ -983,6 +1012,7 @@ function wireLedgerTab() {
 
   document.getElementById('pagePrev')?.addEventListener('click', () => { if (state.ledgerPage > 0) { state.ledgerPage--; refreshLedger(); } });
   document.getElementById('pageNext')?.addEventListener('click', () => { state.ledgerPage++; refreshLedger(); });
+  document.getElementById('ledgerLoadMoreBtn')?.addEventListener('click', () => { state.ledgerPage++; refreshLedger(true); });
 
   document.getElementById('exportXlsx')?.addEventListener('click', () => { window.location = `/api/export.xlsx?lang=${state.lang}`; });
   document.getElementById('exportCsv')?.addEventListener('click',  () => { window.location = `/api/export.csv?lang=${state.lang}`; });
@@ -1003,7 +1033,7 @@ function getDateRange(preset) {
 
 function ymd(d) { return d.toISOString().slice(0,10); }
 
-async function refreshLedger() {
+async function refreshLedger(append = false) {
   const { from, to } = getDateRange(state.ledgerDate);
   const params = new URLSearchParams({
     limit:  state.ledgerLimit,
@@ -1019,20 +1049,27 @@ async function refreshLedger() {
     const res  = await fetch(`/api/entries?${params}`);
     const data = await res.json();
     state.ledgerTotal = data.total;
-    renderLedger(data.entries, data.total);
+    if (append && state.ledgerEntries) {
+      state.ledgerEntries = [...state.ledgerEntries, ...data.entries];
+    } else {
+      state.ledgerEntries = data.entries;
+    }
+    renderLedger(state.ledgerEntries, data.total);
     updatePagination();
   } catch(e) { console.warn('ledger error', e); }
 }
 
 function renderLedger(rows, total) {
-  const body  = document.getElementById('ledgerBody');
-  const foot  = document.getElementById('ledgerFoot');
-  const empty = document.getElementById('ledgerEmpty');
+  const body     = document.getElementById('ledgerBody');
+  const foot     = document.getElementById('ledgerFoot');
+  const empty    = document.getElementById('ledgerEmpty');
+  const cardList = document.getElementById('ledgerCardList');
   if (!body) return;
 
-  if (!rows.length) {
+  if (!rows || !rows.length) {
     body.innerHTML = '';
     foot.innerHTML = '';
+    if (cardList) cardList.innerHTML = '';
     if (empty) empty.style.display = '';
     return;
   }
@@ -1059,6 +1096,44 @@ function renderLedger(rows, total) {
     </tr>
   `).join('');
 
+  // Mobile card list
+  if (cardList) {
+    cardList.innerHTML = rows.map(r => `
+      <div class="ledger-card" data-id="${r.id}" onclick="toggleLedgerCard(this)">
+        <div class="ledger-card-main">
+          <div class="ledger-card-left">
+            <div class="ledger-card-item-row">
+              <span class="ledger-card-item">${esc(r.item)}</span>
+              <span class="pill-type ${r.entry_type}">${r.entry_type === 'sale' ? s('sale','Sale') : s('purchase','Purch.')}</span>
+            </div>
+            <div class="ledger-card-details">
+              ${r.quantity} ${state.unitLabels[r.unit] || r.unit || ''} × ${fmtInr(r.price)}
+            </div>
+            <div class="ledger-card-date">
+              ${fmtDate(r.created_at)} • ${fmtTime(r.created_at)}
+            </div>
+          </div>
+          <div class="ledger-card-right">
+            <div class="ledger-card-total ${r.entry_type}">
+              ${r.entry_type === 'sale' ? '+' : '-'}${fmtInr(r.total)}
+            </div>
+            <div class="ledger-card-expand-hint">Tap for actions</div>
+          </div>
+        </div>
+        <div class="ledger-card-actions">
+          <button class="btn-secondary" onclick="event.stopPropagation(); openEditDialog(${r.id})">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+            <span>${s('edit','Edit')}</span>
+          </button>
+          <button class="btn-ghost" style="color:var(--negative);" onclick="event.stopPropagation(); openDeleteDialog(${r.id})">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            <span>${s('delete','Delete')}</span>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
   // Totals footer
   const totSales = rows.filter(r => r.entry_type === 'sale').reduce((a,b) => a + b.total, 0);
   const totPurch = rows.filter(r => r.entry_type === 'purchase').reduce((a,b) => a + b.total, 0);
@@ -1070,6 +1145,10 @@ function renderLedger(rows, total) {
     </tr>
   `;
 }
+
+window.toggleLedgerCard = function(el) {
+  if (el) el.classList.toggle('expanded');
+};
 
 function updatePagination() {
   const total = state.ledgerTotal;
@@ -1083,6 +1162,11 @@ function updatePagination() {
   const next = document.getElementById('pageNext');
   if (prev) prev.disabled = page === 0;
   if (next) next.disabled = page >= totalPages - 1;
+
+  const loadMoreWrap = document.getElementById('loadMoreWrap');
+  if (loadMoreWrap) {
+    loadMoreWrap.style.display = (page >= totalPages - 1) ? 'none' : 'block';
+  }
 }
 
 // ── Edit dialog ───────────────────────────────────────────
@@ -1373,5 +1457,40 @@ function fmtTime(ts) {
 function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════
+// MOBILE & OFFLINE HELPERS
+// ═══════════════════════════════════════════════════════════
+
+function setupOfflineBanner() {
+  const banner = document.getElementById('offlineBanner');
+  if (!banner) return;
+  function updateOnlineStatus() {
+    if (navigator.onLine) {
+      banner.style.display = 'none';
+    } else {
+      banner.style.display = 'flex';
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+}
+
+function setupResponsiveListeners() {
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (state.rawSeries) renderChart(state.rawSeries);
+    }, 200);
+  });
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (state.rawSeries) renderChart(state.rawSeries);
+    }, 250);
+  });
 }
 

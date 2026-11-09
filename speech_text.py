@@ -29,6 +29,11 @@ Special fractions:
 from num2words import num2words as _n2w
 
 # ════════════════════════════════════════════════════════════
+# PUBLIC: build_short_readback  (new, for shop / voice mode)
+# build_readback is kept unchanged (used by existing tests and API)
+# ════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════
 # 1. HINDI: Devanagari number-to-words
 #    num2words does NOT support Hindi, so we use a hand-built table.
 # ════════════════════════════════════════════════════════════
@@ -278,3 +283,174 @@ def _build_english(item, qty, uword_qty, uword_rate, price, total, num) -> str:
 
     return ", ".join(parts) + ". Is that correct?"
 
+
+
+# ════════════════════════════════════════════════════════════
+# 5. SHORT READ-BACK (voice / shop mode)
+#    Shorter than build_readback; omits unit price unless filled from memory
+#    or unusual. Never adds "Is that correct?" — that is handled by voice UI.
+# ════════════════════════════════════════════════════════════
+
+def build_short_readback(
+    entry: dict,
+    language: str,
+    filled_from_memory: bool = False,
+) -> str:
+    """
+    Build a brief spoken confirmation sentence for voice / shop mode.
+
+    Parameters
+    ----------
+    entry              : dict returned by parser.parse()
+    language           : "hi" or "en"
+    filled_from_memory : True if the price was filled from db.last_price()
+
+    Returns
+    -------
+    str — short TTS sentence.
+
+    Hindi examples:
+      "पचास किलो चावल, तीन हज़ार रुपये"
+      "पचास किलो चावल, सामान्य दाम, तीन हज़ार रुपये"  ← memory price
+
+    English examples:
+      "fifty kilos of rice, three thousand rupees"
+      "fifty kilos of rice, usual price, three thousand rupees"  ← memory
+    """
+    item  = (entry.get("item")  or "").strip()
+    qty   = entry.get("quantity")
+    unit  = (entry.get("unit")  or "").strip()
+    total = entry.get("total")
+
+    num = _num_to_deva if language == "hi" else _num_to_en
+
+    if language == "hi":
+        uword = _unit_word(unit, "hi") if unit else ""
+        parts: list[str] = []
+
+        # Qty + unit + item
+        if qty is not None and uword and item:
+            parts.append(f"{num(qty)} {uword} {item}")
+        elif qty is not None and item:
+            parts.append(f"{num(qty)} {item}")
+        elif item:
+            parts.append(item)
+
+        # Memory note
+        if filled_from_memory:
+            parts.append("सामान्य दाम")
+
+        # Total
+        if total is not None:
+            parts.append(f"{num(total)} रुपये")
+
+        return ", ".join(parts) if parts else "विवरण उपलब्ध नहीं।"
+
+    else:
+        uword_qty  = _unit_word(unit, "en", rate=False) if unit else ""
+        parts_en: list[str] = []
+
+        if qty is not None and uword_qty and item:
+            parts_en.append(f"{num(qty)} {uword_qty} of {item}")
+        elif qty is not None and item:
+            parts_en.append(f"{num(qty)} {item}")
+        elif item:
+            parts_en.append(item)
+
+        if filled_from_memory:
+            parts_en.append("usual price")
+
+        if total is not None:
+            parts_en.append(f"{num(total)} rupees")
+
+        return ", ".join(parts_en) if parts_en else "Entry details not available."
+
+
+def build_query_response(query_type: str, data: dict, language: str) -> str:
+    """
+    Build a brief spoken answer for a voice query command.
+
+    Parameters
+    ----------
+    query_type : "today_total" | "week_total" | "daily_summary" |
+                 "last_entry" | "item_total"
+    data       : dict from db.day_summary() / db.summary_stats() / etc.
+    language   : "hi" or "en"
+
+    Returns
+    -------
+    str — TTS-ready spoken sentence.
+    """
+    num = _num_to_deva if language == "hi" else _num_to_en
+
+    if query_type == "today_total":
+        sales = data.get("sales", 0)
+        if language == "hi":
+            return f"आज की बिक्री {num(sales)} रुपये।"
+        return f"Today's sales are {num(sales)} rupees."
+
+    if query_type == "week_total":
+        sales = data.get("week", {}).get("sales", 0)
+        if language == "hi":
+            return f"इस हफ्ते की बिक्री {num(sales)} रुपये।"
+        return f"This week's sales are {num(sales)} rupees."
+
+    if query_type == "last_entry":
+        recent = data.get("recent", [])
+        if not recent:
+            if language == "hi":
+                return "कोई एंट्री नहीं मिली।"
+            return "No entries found."
+        e = recent[0]
+        item  = e.get("item", "")
+        qty   = e.get("quantity")
+        unit  = e.get("unit", "")
+        total = e.get("total")
+        uword = _unit_word(unit, language) if unit else ""
+        if language == "hi":
+            parts = []
+            if qty and uword and item:
+                parts.append(f"{num(qty)} {uword} {item}")
+            elif item:
+                parts.append(item)
+            if total:
+                parts.append(f"{num(total)} रुपये")
+            return ", ".join(parts) + "।" if parts else "एंट्री विवरण उपलब्ध नहीं।"
+        else:
+            parts = []
+            uword_qty = _unit_word(unit, "en", rate=False) if unit else ""
+            if qty and uword_qty and item:
+                parts.append(f"{num(qty)} {uword_qty} of {item}")
+            elif item:
+                parts.append(item)
+            if total:
+                parts.append(f"{num(total)} rupees")
+            return ", ".join(parts) + "." if parts else "Entry details not available."
+
+    if query_type == "daily_summary":
+        sales = data.get("sales", 0)
+        purchases = data.get("purchases", 0)
+        net = data.get("net", 0)
+        count = data.get("count", 0)
+        if language == "hi":
+            return (
+                f"आज {num(count)} एंट्री। "
+                f"बिक्री {num(sales)} रुपये, "
+                f"खरीद {num(purchases)} रुपये, "
+                f"शुद्ध {num(net)} रुपये।"
+            )
+        return (
+            f"Today {num(count)} entries. "
+            f"Sales {num(sales)} rupees, "
+            f"purchases {num(purchases)} rupees, "
+            f"net {num(net)} rupees."
+        )
+
+    if query_type == "item_total":
+        item = data.get("item", "")
+        total = data.get("total", 0)
+        if language == "hi":
+            return f"आज {item} की बिक्री {num(total)} रुपये।"
+        return f"Today's sales of {item} are {num(total)} rupees."
+
+    return ""

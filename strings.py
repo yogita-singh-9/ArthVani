@@ -107,6 +107,47 @@ _STRINGS: dict[str, dict[str, str]] = {
     "error_audio_too_long": {"en": "Audio too long (max 60 s). Please try again.",
                               "hi": "ऑडियो बहुत लंबी है (अधिकतम 60 सेकंड)। फिर कोशिश करें।"},
 
+    # ── Voice / Shop Mode ─────────────────────────────────────────────────────
+    "shop_mode_title":      {"en": "Shop Mode",             "hi": "दुकान मोड"},
+    "start_shop_mode":      {"en": "Start shop mode",       "hi": "दुकान मोड शुरू करें"},
+    "stop_shop_mode":       {"en": "Stop",                  "hi": "बंद करें"},
+    "state_idle":           {"en": "Tap to start",          "hi": "शुरू करने के लिए दबाएं"},
+    "state_listening":      {"en": "Listening…",            "hi": "सुन रहे हैं…"},
+    "state_transcribing":   {"en": "Understanding…",        "hi": "समझ रहे हैं…"},
+    "state_parsed":         {"en": "Entry ready",           "hi": "एंट्री तैयार"},
+    "state_readback":       {"en": "Speaking…",             "hi": "बोल रहे हैं…"},
+    "state_await":          {"en": "Say yes or no",         "hi": "हाँ या नहीं कहें"},
+    "state_saved":          {"en": "Saved!",                "hi": "सेव हो गया!"},
+    "state_paused":         {"en": "Paused — tap to resume","hi": "रुका है — फिर शुरू करने के लिए दबाएं"},
+    "say_no_to_cancel":     {"en": "Say 'no' to cancel",   "hi": "रद्द करने के लिए 'नहीं' कहें"},
+    "auto_save_in":         {"en": "Auto-saving in",        "hi": "स्वतः सेव होगा"},
+    "mic_on_indicator":     {"en": "Mic is on",             "hi": "माइक चालू है"},
+    "api_calls_today":      {"en": "API calls today",       "hi": "आज के API कॉल"},
+    "auto_paused":          {"en": "Paused after 3 min of silence", "hi": "3 मिनट की चुप्पी के बाद रुका"},
+    "usual_price_note":     {"en": "usual price",           "hi": "सामान्य दाम"},
+    "filled_from_memory":   {"en": "Price filled from last known", "hi": "पिछले दाम से भरा गया"},
+    "undo_confirmed":       {"en": "Last entry removed.",   "hi": "आखिरी एंट्री हटा दी।"},
+    "nothing_to_undo":      {"en": "No entry to undo.",     "hi": "हटाने के लिए कोई एंट्री नहीं।"},
+    "wake_lock_unsupported":{"en": "Screen wake lock not supported on this device.",
+                              "hi": "इस डिवाइस पर स्क्रीन वेक लॉक सपोर्ट नहीं है।"},
+
+    # Confirmation mode labels
+    "confirm_mode_quick":   {"en": "Quick mode",            "hi": "त्वरित मोड"},
+    "confirm_mode_strict":  {"en": "Strict mode",           "hi": "सख्त मोड"},
+    "confirm_mode_desc_quick": {"en": "Auto-saves after 3 seconds unless you say no.",
+                                "hi": "3 सेकंड बाद स्वतः सेव होगा जब तक आप 'नहीं' न कहें।"},
+    "confirm_mode_desc_strict":{"en": "Waits for your 'yes' — no answer means not saved.",
+                                 "hi": "आपके 'हाँ' का इंतज़ार करेगा — कोई जवाब नहीं मतलब सेव नहीं।"},
+
+    # Daily summary
+    "summary_title":        {"en": "Today's Summary",       "hi": "आज का सारांश"},
+    "share_whatsapp":       {"en": "Share on WhatsApp",     "hi": "WhatsApp पर शेयर करें"},
+
+    # Earcon / audio feedback (labels only, actual tones are Web Audio)
+    "earcon_listening":     {"en": "Tick",                  "hi": "टिक"},
+    "earcon_saved":         {"en": "Chime",                 "hi": "चाइम"},
+    "earcon_error":         {"en": "Buzz",                  "hi": "बज़"},
+
     # Language selector labels (shown in English always so user can switch)
     "lang_hindi":     {"en": "हिंदी",              "hi": "हिंदी"},
     "lang_english":   {"en": "English",             "hi": "English"},
@@ -242,6 +283,12 @@ _STRINGS: dict[str, dict[str, str]] = {
                           "hi": "नेटवर्क एरर। इंटरनेट कनेक्शन जांचें।"},
     "error_generic":     {"en": "Something went wrong: {detail}",
                           "hi": "कुछ गलत हुआ: {detail}"},
+
+    # Mobile & Offline additions
+    "offline_notice":    {"en": "Offline mode — changes will sync when connected",
+                          "hi": "ऑफ़लाइन मोड — कनेक्शन मिलने पर सिंक होगा"},
+    "load_more":         {"en": "Load more entries",
+                          "hi": "और एंट्री लोड करें"},
 }
 
 

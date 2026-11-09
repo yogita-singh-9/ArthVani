@@ -424,6 +424,130 @@ def today_total(path: str | None = None) -> float:
 
 
 # ════════════════════════════════════════════════════════════
+# 3b. PRICE MEMORY
+# ════════════════════════════════════════════════════════════
+
+def last_price(
+    item: str,
+    unit: str | None = None,
+    path: str | None = None,
+    fuzzy_threshold: int = 80,
+) -> float | None:
+    """
+    Return the most recent price for `item` (optionally filtered by unit).
+
+    Uses rapidfuzz for fuzzy item matching so "chawal", "चावल", and "rice"
+    can match across near-duplicate spellings. High threshold (80) avoids
+    false positives.
+
+    Parameters
+    ----------
+    item             : item name to look up (as spoken)
+    unit             : optional canonical unit key to narrow the search
+    path             : DB file path
+    fuzzy_threshold  : minimum rapidfuzz token_sort_ratio score (0–100)
+
+    Returns
+    -------
+    float — the per-unit price, or None if no matching entry found.
+    """
+    try:
+        from rapidfuzz import fuzz as _fuzz
+        _has_rapidfuzz = True
+    except ImportError:
+        _has_rapidfuzz = False
+
+    conn = _connect(path)
+    try:
+        if unit:
+            rows = conn.execute(
+                "SELECT item, price FROM entries WHERE unit = ? ORDER BY created_at DESC, id DESC LIMIT 100",
+                (unit,),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT item, price FROM entries ORDER BY created_at DESC, id DESC LIMIT 200"
+            ).fetchall()
+    finally:
+        conn.close()
+
+    if not rows:
+        return None
+
+    item_lower = item.strip().lower()
+
+    for row in rows:
+        candidate = (row["item"] or "").strip().lower()
+        if not candidate:
+            continue
+        if candidate == item_lower:
+            return float(row["price"])
+        if _has_rapidfuzz:
+            score = _fuzz.token_sort_ratio(item_lower, candidate)
+            if score >= fuzzy_threshold:
+                return float(row["price"])
+
+    return None
+
+
+def day_summary(path: str | None = None) -> dict:
+    """
+    Return a concise summary dict for today (IST).
+
+    Returns
+    -------
+    dict with keys:
+      sales       : float
+      purchases   : float
+      net         : float
+      count       : int
+      top_items   : list[dict] — up to 3 items [{item, total, count}]
+      date        : str YYYY-MM-DD
+    """
+    today = _today_ist()
+    conn  = _connect(path)
+    try:
+        row = conn.execute(
+            """
+            SELECT
+              COALESCE(SUM(CASE WHEN entry_type='sale' THEN total ELSE 0 END), 0)     AS sales,
+              COALESCE(SUM(CASE WHEN entry_type='purchase' THEN total ELSE 0 END), 0) AS purchases,
+              COUNT(*) AS cnt
+            FROM entries WHERE created_at LIKE ?
+            """,
+            (f"{today}%",),
+        ).fetchone()
+
+        top = conn.execute(
+            """
+            SELECT item, SUM(total) AS total_val, COUNT(*) AS cnt
+              FROM entries
+             WHERE entry_type='sale' AND created_at LIKE ?
+             GROUP BY item
+             ORDER BY total_val DESC
+             LIMIT 3
+            """,
+            (f"{today}%",),
+        ).fetchall()
+
+        sales = round(float(row["sales"]), 2)
+        purch = round(float(row["purchases"]), 2)
+        return {
+            "date":      today,
+            "sales":     sales,
+            "purchases": purch,
+            "net":       round(sales - purch, 2),
+            "count":     row["cnt"],
+            "top_items": [
+                {"item": r["item"], "total": round(float(r["total_val"]), 2), "count": r["cnt"]}
+                for r in top
+            ],
+        }
+    finally:
+        conn.close()
+
+
+# ════════════════════════════════════════════════════════════
 # 4. UPDATE / DELETE
 # ════════════════════════════════════════════════════════════
 

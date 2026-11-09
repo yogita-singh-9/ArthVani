@@ -2,7 +2,7 @@
 <html lang="hi" dir="ltr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="description" content="ArthVani – Voice-first ledger for kirana shops. बोलिए, हिसाब हो जाएगा।"/>
   <title>ArthVani – बोलिए, हिसाब हो जाएगा</title>
 
@@ -11,6 +11,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/brand/png/favicon-32.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/brand/png/apple-touch-icon.png"/>
   <meta name="theme-color" content="#2A0E22"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ArthVani"/>
+  <link rel="manifest" href="/static/manifest.json"/>
 
   <!-- Google Fonts: Inter (Latin) + Noto Sans Devanagari (Hindi) -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -23,6 +28,14 @@
   <link rel="stylesheet" href="/static/styles.css"/>
 </head>
 <body>
+
+<!-- Offline banner -->
+<div id="offlineBanner" class="offline-banner" role="status" aria-live="polite" style="display:none">
+  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+  </svg>
+  <span data-i18n="offline_notice">Offline mode — changes will sync when connected</span>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════
      APP SHELL
@@ -139,7 +152,7 @@
 
     <!-- TOP BAR -->
     <header id="topbar">
-      <div style="display:flex;align-items:center;">
+      <div class="topbar-left">
         <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
             <line x1="4" x2="20" y1="12" y2="12"/>
@@ -147,11 +160,18 @@
             <line x1="4" x2="20" y1="18" y2="18"/>
           </svg>
         </button>
+        <a href="#dashboard" class="topbar-mobile-logo" aria-label="ArthVani">
+          <img src="/brand/logo-mark-on-light.svg" alt="ArthVani" width="28" height="28" style="height:28px; width:28px; display:block;"/>
+        </a>
         <h1 id="pageTitle" class="topbar-title" data-i18n="nav_dashboard">Dashboard</h1>
       </div>
 
       <div class="topbar-right">
         <span id="topbarDate" class="topbar-date"></span>
+        <div class="topbar-lang" role="group" aria-label="Language selector">
+          <button class="topbar-lang-btn active" id="topbarLangHi" aria-pressed="true" aria-label="हिंदी">हिं</button>
+          <button class="topbar-lang-btn" id="topbarLangEn" aria-pressed="false" aria-label="English">EN</button>
+        </div>
         <button class="btn-primary-topbar" id="topbarSpeakBtn" aria-label="Record entry">
           <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
@@ -277,6 +297,83 @@
     <section id="tab-speak" class="tab-section" aria-label="Record entry">
       <div class="speak-container">
 
+        <!-- Shop Mode Panel (shown when shop mode is active) -->
+        <div id="shopModePanel" class="shop-mode-panel" style="display:none" aria-live="polite" aria-atomic="true">
+          <!-- State ring + indicator -->
+          <div class="shop-state-ring" id="shopStateRing" aria-label="Shop mode status">
+            <div class="shop-state-inner">
+              <div class="shop-mic-indicator" id="shopMicIndicator" aria-hidden="true"></div>
+              <div class="shop-state-label" id="shopStateLabel" data-i18n="state_listening">Listening…</div>
+            </div>
+          </div>
+
+          <!-- Heard text -->
+          <div class="shop-heard" id="shopHeard" aria-live="polite"></div>
+
+          <!-- Parsed total -->
+          <div class="shop-total" id="shopTotal"></div>
+
+          <!-- Countdown / hint -->
+          <div class="shop-hint" id="shopHint" aria-live="polite"></div>
+
+          <!-- Earcons: filled_from_memory note -->
+          <div class="shop-memory-note" id="shopMemoryNote" style="display:none" data-i18n="filled_from_memory"></div>
+
+          <!-- API call counter -->
+          <div class="shop-counter">
+            <span data-i18n="api_calls_today">API calls today</span>:
+            <span id="shopApiCount">0</span>
+            <span>/ 300</span>
+          </div>
+
+          <!-- Action buttons (always visible as fallback) -->
+          <div class="shop-actions" id="shopActions" style="display:none">
+            <button class="btn-primary" id="shopYesBtn" aria-label="Confirm entry">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span data-i18n="correct">Correct</span>
+            </button>
+            <button class="btn-secondary" id="shopNoBtn" aria-label="Cancel entry">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+              <span data-i18n="wrong">Wrong</span>
+            </button>
+          </div>
+
+          <!-- Daily summary + WhatsApp share -->
+          <div class="shop-summary-row" id="shopSummaryRow" style="display:none">
+            <div class="shop-summary-text" id="shopSummaryText"></div>
+            <a class="btn-secondary shop-wa-btn" id="shopWaBtn" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+              <span data-i18n="share_whatsapp">Share on WhatsApp</span>
+            </a>
+          </div>
+
+          <!-- Stop shop mode -->
+          <button class="btn-ghost shop-stop-btn" id="shopStopBtn" data-i18n="stop_shop_mode">Stop</button>
+        </div>
+
+        <!-- Start Shop Mode button (shown when shop mode is NOT active) -->
+        <div class="shop-mode-entry" id="shopModeEntry">
+          <button class="btn-primary btn-shop-start" id="shopStartBtn" aria-label="Start shop mode">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+            <span data-i18n="start_shop_mode">Start shop mode</span>
+          </button>
+          <div class="shop-mode-desc" data-i18n="tagline">बोलिए, हिसाब हो जाएगा।</div>
+        </div>
+
+        <hr class="speak-divider"/>
+
+        <!-- Confirmation mode toggle (in settings via Settings tab) -->
+
         <!-- Stepper -->
         <div class="stepper" id="stepper" aria-label="Recording steps">
           <div class="step active" id="step0" data-i18n="step_listen">Listening</div>
@@ -335,13 +432,13 @@
           <div class="review-fields">
             <div class="field-group">
               <label for="revItem" data-i18n="item">Item</label>
-              <input type="text" id="revItem" class="rev-input" autocomplete="off" spellcheck="false"/>
+              <input type="text" id="revItem" class="rev-input" autocomplete="off" spellcheck="false" enterkeyhint="next"/>
             </div>
 
             <div class="field-row">
               <div class="field-group">
                 <label for="revQty" data-i18n="qty">Quantity</label>
-                <input type="number" id="revQty" class="rev-input" min="0" step="0.01"/>
+                <input type="number" id="revQty" class="rev-input" min="0" step="0.01" inputmode="decimal" enterkeyhint="next"/>
               </div>
               <div class="field-group">
                 <label for="revUnit" data-i18n="unit">Unit</label>
@@ -351,7 +448,7 @@
 
             <div class="field-group">
               <label for="revPrice" data-i18n="price">Price (₹/unit)</label>
-              <input type="number" id="revPrice" class="rev-input" min="0" step="0.01"/>
+              <input type="number" id="revPrice" class="rev-input" min="0" step="0.01" inputmode="decimal" enterkeyhint="done"/>
             </div>
 
             <!-- Type toggle -->
@@ -468,6 +565,9 @@
           <tfoot id="ledgerFoot"></tfoot>
         </table>
 
+        <!-- Mobile Card List (shown on <= 768px instead of table) -->
+        <div id="ledgerCardList" class="ledger-card-list" aria-label="Ledger entries list"></div>
+
         <div id="ledgerEmpty" class="empty-state" style="display:none">
           <div class="empty-icon" aria-hidden="true">
             <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -478,6 +578,11 @@
           <p data-i18n="empty_table">No entries yet. Speak or type your first entry above.</p>
           <button class="btn-secondary" id="ledgerDemoBtn" data-i18n="demo_data">Load demo entries</button>
         </div>
+      </div>
+
+      <!-- Mobile Load More -->
+      <div id="loadMoreWrap" class="load-more-wrap" style="display:none">
+        <button class="btn-secondary load-more-btn" id="ledgerLoadMoreBtn" data-i18n="load_more">Load more entries</button>
       </div>
 
       <!-- Pagination -->
@@ -547,6 +652,32 @@
           <button class="btn-primary" id="saveShopName" data-i18n="save">Save</button>
         </div>
 
+        <!-- Voice Mode Settings -->
+        <div class="card settings-section">
+          <h2 class="card-title" data-i18n="shop_mode_title">Shop Mode</h2>
+
+          <div class="field-group">
+            <label data-i18n="confirm_mode_quick">Confirmation Mode</label>
+            <div class="type-toggle" role="group" aria-label="Confirmation mode">
+              <button class="type-btn active" id="modeQuick" data-mode="quick" data-i18n="confirm_mode_quick">Quick mode</button>
+              <button class="type-btn" id="modeStrict" data-mode="strict" data-i18n="confirm_mode_strict">Strict mode</button>
+            </div>
+            <div class="settings-desc" id="modeDesc" data-i18n="confirm_mode_desc_quick" style="margin-top:8px;"></div>
+          </div>
+
+          <div class="field-group" style="margin-top:16px;">
+            <label for="dailyCapInput">Daily API cap</label>
+            <input type="number" id="dailyCapInput" class="rev-input" min="10" max="1000" value="300" step="10"/>
+          </div>
+
+          <div class="field-group" style="margin-top:16px;">
+            <label for="highValueInput">High-value alert (₹)</label>
+            <input type="number" id="highValueInput" class="rev-input" min="100" max="1000000" value="10000" step="100"/>
+          </div>
+
+          <button class="btn-secondary" id="saveVoiceSettings" data-i18n="save" style="margin-top:16px;">Save</button>
+        </div>
+
         <div class="card settings-section">
           <h2 class="card-title" data-i18n="settings_language">Language</h2>
           <div class="lang-toggle" style="max-width:240px;background:var(--page);border:1px solid var(--border)">
@@ -613,12 +744,12 @@
     <input type="hidden" id="editId"/>
     <div class="field-group">
       <label for="editItem" data-i18n="item">Item</label>
-      <input type="text" id="editItem" class="rev-input"/>
+      <input type="text" id="editItem" class="rev-input" enterkeyhint="next"/>
     </div>
     <div class="field-row">
       <div class="field-group">
         <label for="editQty" data-i18n="qty">Quantity</label>
-        <input type="number" id="editQty" class="rev-input" min="0" step="0.01"/>
+        <input type="number" id="editQty" class="rev-input" min="0" step="0.01" inputmode="decimal" enterkeyhint="next"/>
       </div>
       <div class="field-group">
         <label for="editUnit" data-i18n="unit">Unit</label>
@@ -627,7 +758,7 @@
     </div>
     <div class="field-group">
       <label for="editPrice" data-i18n="price">Price (₹/unit)</label>
-      <input type="number" id="editPrice" class="rev-input" min="0" step="0.01"/>
+      <input type="number" id="editPrice" class="rev-input" min="0" step="0.01" inputmode="decimal" enterkeyhint="done"/>
     </div>
     <div class="total-preview">
       <span data-i18n="total">Total</span>
@@ -695,6 +826,7 @@
   </a>
 </nav>
 
+<script src="/static/shop_mode.js"></script>
 <script type="module" src="/static/app.js"></script>
 </body>
 </html>
