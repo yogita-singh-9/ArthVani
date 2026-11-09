@@ -7,6 +7,9 @@ ArthVani is a **voice-first ledger application** designed specifically for India
 
 Built for the **Gnani AI Great Indian AI Internship Challenge 2026**.
 
+Try it live: https://arthvani.onrender.com (bring your own Gnani and Gemini keys; the first visit after a quiet spell can take ~30 s to wake up)
+
+
 ---
 
 ## 📸 Architecture & Design
