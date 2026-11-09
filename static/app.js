@@ -40,6 +40,8 @@ const state = {
   // Chart instances
   chart14d:   null,
   chartDonut: null,
+  chartRange: 7,
+  rawSeries:  [],
 
   // Delete dialog target
   deleteTargetId: null,
@@ -92,16 +94,19 @@ function s(key, fallback = '') {
 function updateI18nDOM() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
-    const val = s(key);
-    if (!val) return;
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.placeholder = val;
-    } else {
-      el.textContent = val;
+    const val = state.strings[key];
+    if (val) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = val;
+      } else {
+        el.textContent = val;
+      }
     }
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = s(el.dataset.i18nPlaceholder);
+    const key = el.dataset.i18nPlaceholder;
+    const val = state.strings[key];
+    if (val) el.placeholder = val;
   });
 }
 
@@ -139,8 +144,8 @@ function switchLang(lang) {
   state.lang = lang;
   localStorage.setItem('av_lang', lang);
   applyLangUI(lang);
+  setDate();
   loadI18n(lang).then(() => {
-    renderGreeting();
     refreshDashboard();
     refreshLedger();
     refreshReports();
@@ -174,6 +179,12 @@ function showTab(tabId) {
   const pageTitle = document.getElementById('pageTitle');
   if (pageTitle) pageTitle.textContent = title;
 
+  // Show topbar Record button only on non-record pages
+  const topbarSpeakBtn = document.getElementById('topbarSpeakBtn');
+  if (topbarSpeakBtn) {
+    topbarSpeakBtn.style.display = (tabId === 'speak') ? 'none' : 'inline-flex';
+  }
+
   // Lazy-load data
   if (tabId === 'dashboard') refreshDashboard();
   if (tabId === 'ledger')    refreshLedger();
@@ -192,6 +203,16 @@ function wireNav() {
   });
   document.getElementById('dashSpeakBtn')?.addEventListener('click', () => { location.hash = '#speak'; });
   document.getElementById('topbarSpeakBtn')?.addEventListener('click', () => { location.hash = '#speak'; });
+
+  // Chart range toggle
+  document.querySelectorAll('.chart-range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.chart-range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.chartRange = parseInt(btn.dataset.range, 10) || 7;
+      renderChart(state.rawSeries);
+    });
+  });
 }
 
 function wireSidebar() {
@@ -234,11 +255,14 @@ function wireTopbar() {
 // ═══════════════════════════════════════════════════════════
 
 function loadShopName() {
-  const name = localStorage.getItem('av_shop') || '';
+  const name = localStorage.getItem('av_shop') || 'My Kirana Store';
   const display = document.getElementById('shopNameDisplay');
   const input   = document.getElementById('shopNameInput');
-  if (display && name) display.textContent = name;
-  if (input)  input.value = name;
+  if (display) {
+    display.textContent = name;
+    display.title = name;
+  }
+  if (input) input.value = name;
 }
 
 function wireSettingsTab() {
@@ -248,7 +272,10 @@ function wireSettingsTab() {
     localStorage.setItem('av_shop', val);
     state.shopName = val;
     const disp = document.getElementById('shopNameDisplay');
-    if (disp) disp.textContent = val;
+    if (disp) {
+      disp.textContent = val;
+      disp.title = val;
+    }
     showToast(s('saved','Saved!'), 'success');
   });
   document.getElementById('settLoadDemo')?.addEventListener('click', loadDemoData);
@@ -328,8 +355,9 @@ async function refreshDashboard() {
   try {
     const res  = await fetch('/api/summary');
     const data = await res.json();
+    state.rawSeries = data.series_14d || [];
     renderStats(data.today);
-    renderChart(data.series_14d);
+    renderChart(state.rawSeries);
     renderTopItems(data.top_items || []);
     renderRecent(data.recent || []);
   } catch(e) { console.warn('dashboard error', e); }
@@ -337,21 +365,28 @@ async function refreshDashboard() {
 
 function renderStats(today) {
   if (!today) return;
-  animateCount('statSales',     today.sales,     true);
-  animateCount('statPurchases', today.purchases,  true);
-  animateCount('statNet',       today.net,        true);
-  animateCount('statEntries',   today.count,      false);
+  animateCount('statSales',     today.sales,     true, false);
+  animateCount('statPurchases', today.purchases,  true, false);
+  animateCount('statNet',       today.net,        true, true);
+  animateCount('statEntries',   today.count,      false, false);
 }
 
-function animateCount(id, target, isCurrency) {
+function animateCount(id, target, isCurrency, isNet) {
   const el = document.getElementById(id);
   if (!el) return;
-  const start = 0, dur = 800;
+  if (isNet) {
+    el.classList.remove('is-positive', 'is-negative');
+    if (target > 0) el.classList.add('is-positive');
+    else if (target < 0) el.classList.add('is-negative');
+  }
+  const start = 0, dur = 400;
   const st = performance.now();
   function step(now) {
     const p = Math.min((now - st) / dur, 1);
     const val = start + (target - start) * easeOut(p);
-    el.textContent = isCurrency ? fmtInr(val) : Math.round(val).toString();
+    const formatted = isCurrency ? fmtInr(val) : Math.round(val).toString();
+    const prefix = (isNet && target > 0) ? '+' : '';
+    el.textContent = prefix + formatted;
     if (p < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
@@ -363,12 +398,15 @@ function renderChart(series) {
   const canvas = document.getElementById('chart14d');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  const labels = series.map(d => {
+  const range = state.chartRange || 7;
+  const currentSeries = series.slice(-range);
+
+  const labels = currentSeries.map(d => {
     const [,m,day] = d.date.split('-');
     return `${day}/${m}`;
   });
-  const sales     = series.map(d => d.sales);
-  const purchases = series.map(d => d.purchases);
+  const sales     = currentSeries.map(d => d.sales);
+  const purchases = currentSeries.map(d => d.purchases);
 
   if (state.chart14d) state.chart14d.destroy();
   state.chart14d = new Chart(canvas, {
@@ -376,16 +414,54 @@ function renderChart(series) {
     data: {
       labels,
       datasets: [
-        { label: s('today_sales','Sales'), data: sales, backgroundColor: 'rgba(184,51,106,.75)', borderRadius: 6, borderSkipped: false },
-        { label: s('today_purchases','Purchases'), data: purchases, backgroundColor: 'rgba(99,102,241,.55)', borderRadius: 6, borderSkipped: false },
+        {
+          label: s('sale','Sales'),
+          data: sales,
+          backgroundColor: '#B8336A',
+          borderRadius: 4,
+          borderSkipped: false
+        },
+        {
+          label: s('purchase','Purchases'),
+          data: purchases,
+          backgroundColor: '#64748B',
+          borderRadius: 4,
+          borderSkipped: false
+        },
       ],
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { font: { family: 'Poppins' }, color: '#7A5568' } } },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: 'Inter', size: 12 },
+            color: '#6E5E69',
+            boxWidth: 12,
+            boxHeight: 12,
+            borderRadius: 2
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.dataset.label}: ${fmtInr(ctx.raw)}`
+          }
+        }
+      },
       scales: {
-        x: { grid: { display: false }, ticks: { color: '#7A5568', font: { size: 11 } } },
-        y: { grid: { color: 'rgba(248,200,220,.4)' }, ticks: { color: '#7A5568', callback: v => '₹'+v } },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#6E5E69', font: { family: 'Inter', size: 11 } }
+        },
+        y: {
+          grid: { color: '#F4EFF2' },
+          ticks: {
+            color: '#6E5E69',
+            font: { family: 'Inter', size: 11 },
+            callback: v => '₹' + v
+          }
+        },
       },
     },
   });
@@ -394,12 +470,10 @@ function renderChart(series) {
 function renderTopItems(items) {
   const el = document.getElementById('topItemsList');
   if (!el) return;
-  if (!items.length) { el.innerHTML = `<p style="color:var(--text-sec);font-size:.88rem">${s('empty_table','No data')}</p>`; return; }
-  const max = items[0].total || 1;
+  if (!items.length) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px">${s('empty_table','No data')}</p>`; return; }
   el.innerHTML = items.map(it => `
     <div class="top-item">
       <span class="top-item-name">${esc(it.item)}</span>
-      <div class="top-item-bar-wrap"><div class="top-item-bar" style="width:${Math.round(it.total/max*100)}%"></div></div>
       <span class="top-item-amt">${fmtInr(it.total)}</span>
     </div>
   `).join('');
@@ -408,31 +482,31 @@ function renderTopItems(items) {
 function renderRecent(rows) {
   const el = document.getElementById('recentEntriesList');
   if (!el) return;
-  if (!rows.length) { el.innerHTML = `<p style="color:var(--text-sec);font-size:.88rem">${s('empty_table','No entries')}</p>`; return; }
+  if (!rows.length) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px">${s('empty_table','No entries')}</p>`; return; }
   el.innerHTML = rows.map(r => `
-    <div class="recent-row">
-      <span class="recent-item">${esc(r.item)}</span>
-      <span class="pill pill-${r.entry_type}">${r.entry_type === 'sale' ? s('sale','Sale') : s('purchase','Purchase')}</span>
+    <div class="recent-item">
+      <div style="display:flex;align-items:center;">
+        <span class="recent-name">${esc(r.item)}</span>
+        <span class="pill-type ${r.entry_type}" style="margin-left:8px">${r.entry_type === 'sale' ? s('sale','Sale') : s('purchase','Purch.')}</span>
+      </div>
       <span class="recent-total">${fmtInr(r.total)}</span>
     </div>
   `).join('');
 }
 
 function renderGreeting() {
-  const el = document.getElementById('greeting');
-  if (!el) return;
-  const h = new Date().getHours();
-  let key = h < 12 ? 'greeting_morning' : h < 17 ? 'greeting_afternoon' : 'greeting_evening';
-  const shop = localStorage.getItem('av_shop') || '';
-  const greet = s(key, h < 12 ? (state.lang === 'hi' ? 'सुप्रभात' : 'Good morning') : h < 17 ? (state.lang === 'hi' ? 'नमस्ते' : 'Good afternoon') : (state.lang === 'hi' ? 'शुभ संध्या' : 'Good evening'));
-  el.textContent = shop ? `${greet}, ${shop}` : greet;
+  // AI tells removed: calm sentence-case headers without fluffy greetings
 }
 
 function setDate() {
   const el = document.getElementById('topbarDate');
   if (!el) return;
   const now = new Date();
-  el.textContent = now.toLocaleDateString(state.lang === 'hi' ? 'hi-IN' : 'en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  el.textContent = now.toLocaleDateString(state.lang === 'hi' ? 'hi-IN' : 'en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -964,20 +1038,23 @@ function renderLedger(rows, total) {
   }
   if (empty) empty.style.display = 'none';
 
-  const lang = state.lang;
   body.innerHTML = rows.map(r => `
     <tr>
       <td>${fmtDate(r.created_at)}</td>
       <td>${fmtTime(r.created_at)}</td>
-      <td><span class="pill pill-${r.entry_type}">${r.entry_type === 'sale' ? s('sale','Sale') : s('purchase','Purch.')}</span></td>
+      <td><span class="pill-type ${r.entry_type}">${r.entry_type === 'sale' ? s('sale','Sale') : s('purchase','Purch.')}</span></td>
       <td class="cell-item">${esc(r.item)}</td>
-      <td>${r.quantity}</td>
-      <td>${s(r.unit, r.unit) || r.unit || ''}</td>
-      <td>${fmtInr(r.price)}</td>
+      <td class="cell-num">${r.quantity}</td>
+      <td>${state.unitLabels[r.unit] || r.unit || ''}</td>
+      <td class="cell-num">${fmtInr(r.price)}</td>
       <td class="cell-total">${fmtInr(r.total)}</td>
       <td class="row-actions">
-        <button class="row-action-btn" onclick="openEditDialog(${r.id})" title="${s('edit','Edit')}" aria-label="${s('edit','Edit')} ${esc(r.item)}">✏️</button>
-        <button class="row-action-btn del" onclick="openDeleteDialog(${r.id})" title="${s('delete','Delete')}" aria-label="${s('delete','Delete')} ${esc(r.item)}">🗑️</button>
+        <button class="row-action-btn" onclick="openEditDialog(${r.id})" title="${s('edit','Edit')}" aria-label="${s('edit','Edit')} ${esc(r.item)}">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+        </button>
+        <button class="row-action-btn del" onclick="openDeleteDialog(${r.id})" title="${s('delete','Delete')}" aria-label="${s('delete','Delete')} ${esc(r.item)}">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+        </button>
       </td>
     </tr>
   `).join('');
@@ -988,8 +1065,8 @@ function renderLedger(rows, total) {
   foot.innerHTML = `
     <tr>
       <td colspan="6" style="text-align:right;font-weight:600">${s('total','Total')} (${rows.length} ${s('today_entries','entries')})</td>
-      <td>${s('sale','Sales')}: ${fmtInr(totSales)}</td>
-      <td colspan="2">${s('purchase','Purch.')}: ${fmtInr(totPurch)}</td>
+      <td class="cell-num" style="color:var(--accent);font-weight:600">${s('sale','Sales')}: ${fmtInr(totSales)}</td>
+      <td class="cell-total" colspan="2" style="color:var(--chart-purch);font-weight:600">${s('purchase','Purch.')}: ${fmtInr(totPurch)}</td>
     </tr>
   `;
 }
@@ -1141,10 +1218,11 @@ async function refreshReports() {
     // Summary
     const repSum = document.getElementById('reportSummary');
     if (repSum) {
+      const net = totSales - totPurch;
       repSum.innerHTML = `
-        <div class="report-summary-row"><span>${s('today_sales','Sales')}</span><strong style="color:var(--success)">${fmtInr(totSales)}</strong></div>
-        <div class="report-summary-row"><span>${s('today_purchases','Purchases')}</span><strong style="color:var(--raspberry)">${fmtInr(totPurch)}</strong></div>
-        <div class="report-summary-row"><span>${s('today_net','Net')}</span><strong style="color:var(--plum-dk)">${fmtInr(totSales-totPurch)}</strong></div>
+        <div class="report-summary-row"><span>${s('today_sales','Sales')}</span><strong style="color:var(--accent)">${fmtInr(totSales)}</strong></div>
+        <div class="report-summary-row"><span>${s('today_purchases','Purchases')}</span><strong style="color:var(--chart-purch)">${fmtInr(totPurch)}</strong></div>
+        <div class="report-summary-row"><span>${s('today_net','Net')}</span><strong style="color:${net >= 0 ? 'var(--positive)' : 'var(--negative)'}">${(net > 0 ? '+' : '') + fmtInr(net)}</strong></div>
         <div class="report-summary-row"><span>${s('today_entries','Entries')}</span><strong>${entries.length}</strong></div>
       `;
     }
@@ -1158,19 +1236,24 @@ function renderDonut(sales, purchases) {
   state.chartDonut = new Chart(canvas, {
     type: 'doughnut',
     data: {
-      labels: [s('today_sales','Sales'), s('today_purchases','Purchases')],
+      labels: [s('sale','Sales'), s('purchase','Purchases')],
       datasets: [{
         data: [sales || 0, purchases || 0],
-        backgroundColor: ['rgba(219,39,119,.8)', 'rgba(99,102,241,.75)'],
+        backgroundColor: ['#B8336A', '#64748B'],
         borderWidth: 0,
       }],
     },
     options: {
       responsive: true,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Poppins' }, color: '#7A5568', padding: 16 } },
+        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, color: '#6E5E69', padding: 16 } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.label}: ${fmtInr(ctx.raw)}`
+          }
+        }
       },
-      cutout: '65%',
+      cutout: '70%',
     },
   });
 }
@@ -1242,27 +1325,44 @@ function showToast(message, type = '', withUndo = false) {
 
 function fmtInr(n) {
   if (n == null || isNaN(n)) return '₹0';
-  // Indian number format: 1,23,456.00
-  const abs   = Math.abs(n);
-  const fixed = abs.toFixed(2);
-  const [int, dec] = fixed.split('.');
+  const sign = n < 0 ? '-' : '';
+  const abs = Math.abs(n);
+  const rounded = Math.round(abs * 100) / 100;
+  const parts = rounded.toFixed(2).split('.');
+  let intPart = parts[0];
+  const decPart = parts[1];
+
   let result = '';
-  if (int.length <= 3) {
-    result = int;
+  if (intPart.length <= 3) {
+    result = intPart;
   } else {
-    result = int.slice(-3);
-    let rem = int.slice(0, -3);
-    while (rem.length > 2) { result = rem.slice(-2) + ',' + result; rem = rem.slice(0,-2); }
+    result = intPart.slice(-3);
+    let rem = intPart.slice(0, -3);
+    while (rem.length > 2) {
+      result = rem.slice(-2) + ',' + result;
+      rem = rem.slice(0, -2);
+    }
     if (rem) result = rem + ',' + result;
   }
-  return (n < 0 ? '-' : '') + '₹' + result + '.' + dec;
+
+  if (decPart && decPart !== '00') {
+    return sign + '₹' + result + '.' + decPart;
+  }
+  return sign + '₹' + result;
 }
 
 function fmtDate(ts) {
   if (!ts) return '';
   const [date] = ts.split('T');
   const [y,m,d] = date.split('-');
-  return `${d}-${m}-${y}`;
+  if (!y || !m || !d) return ts;
+  const dt = new Date(Number(y), Number(m) - 1, Number(d));
+  if (isNaN(dt.getTime())) return `${d}-${m}-${y}`;
+  return dt.toLocaleDateString(state.lang === 'hi' ? 'hi-IN' : 'en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
 }
 
 function fmtTime(ts) {

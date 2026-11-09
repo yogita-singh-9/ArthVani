@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArthVani – Logo Vector vs Raster Compare</title>
+  <style>
+    :root {
+      --sidebar: #2A0E22;
+      --accent:  #B8336A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #111114;
+      color: #F3EDF1;
+      padding: 32px;
+      line-height: 1.5;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #A3969E;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 24px;
+      background: #1C191E;
+      padding: 16px 20px;
+      border: 1px solid #2E2730;
+      border-radius: 8px;
+      margin-bottom: 32px;
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    input[type="range"] {
+      cursor: pointer;
+    }
+    .views-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+      gap: 32px;
+    }
+    .card {
+      background: #18151A;
+      border: 1px solid #2B242E;
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #E2D9DF;
+    }
+    .stage {
+      position: relative;
+      width: 512px;
+      height: 512px;
+      background: var(--sidebar);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .stage img, .stage svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 512px;
+      height: 512px;
+      display: block;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      background: rgba(184, 51, 106, 0.2);
+      color: #F472B6;
+      border: 1px solid rgba(184, 51, 106, 0.4);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ArthVani Mark – Geometric Reconstruction vs Original Raster</h1>
+  <p>Overlaying the clean, hand-crafted vector geometry at 100% scale (512&times;512 grid) against the original image.</p>
+
+  <div class="toolbar">
+    <div class="control-group">
+      <label for="opacitySlider"><strong>Vector SVG Opacity:</strong></label>
+      <input type="range" id="opacitySlider" min="0" max="1" step="0.02" value="0.7"/>
+      <span id="opacityVal">70%</span>
+    </div>
+    <div class="control-group">
+      <label>
+        <input type="checkbox" id="highlightCheck" checked/>
+        Highlight Vector in Cyan
+      </label>
+    </div>
+    <div class="control-group">
+      <label>
+        <input type="checkbox" id="showOrigCheck" checked/>
+        Show Original Raster Underneath
+      </label>
+    </div>
+  </div>
+
+  <div class="views-grid">
+    <!-- Overlay View -->
+    <div class="card">
+      <h2>100% Overlay Comparison <span class="badge">Pixel Alignment</span></h2>
+      <div class="stage" id="overlayStage">
+        <img src="original.jpg" id="origLayer" alt="Original raster logo" style="opacity: 1;"/>
+        <svg id="vectorLayer" viewBox="0 0 512 512" style="opacity: 0.7;">
+          <title>Reconstructed ArthVani Mark</title>
+          <!-- Speech Bubble -->
+          <path class="vector-stroke"
+                d="M 172 102
+                   L 338 102
+                   A 76 76 0 0 1 414 178
+                   L 414 306
+                   A 76 76 0 0 1 338 382
+                   L 214 382
+                   L 156 442
+                   A 10 10 0 0 1 140 434
+                   L 140 376
+                   C 140 342 96 332 96 296
+                   L 96 178
+                   A 76 76 0 0 1 172 102 Z"
+                fill="none"
+                stroke="#00F5FF"
+                stroke-width="28"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+          <!-- Rupee Symbol -->
+          <line class="vector-stroke" x1="168" y1="166" x2="346" y2="166" stroke="#00F5FF" stroke-width="28" stroke-linecap="round"/>
+          <line class="vector-stroke" x1="168" y1="215" x2="346" y2="215" stroke="#00F5FF" stroke-width="28" stroke-linecap="round"/>
+          <path class="vector-stroke"
+                d="M 256 166
+                   C 298 166 298 220 286 240
+                   C 274 260 230 264 186 264"
+                fill="none"
+                stroke="#00F5FF"
+                stroke-width="28"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+          <line class="vector-stroke" x1="186" y1="264" x2="276" y2="345" stroke="#00F5FF" stroke-width="28" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Clean Vector Only -->
+    <div class="card">
+      <h2>Clean Vector Mark (Production SVG) <span class="badge">Faithful &amp; Crisp</span></h2>
+      <div class="stage" style="background: var(--sidebar);">
+        <svg viewBox="0 0 512 512">
+          <title>ArthVani Clean Mark</title>
+          <!-- Speech Bubble -->
+          <path d="M 172 102
+                   L 338 102
+                   A 76 76 0 0 1 414 178
+                   L 414 306
+                   A 76 76 0 0 1 338 382
+                   L 214 382
+                   L 156 442
+                   A 10 10 0 0 1 140 434
+                   L 140 376
+                   C 140 342 96 332 96 296
+                   L 96 178
+                   A 76 76 0 0 1 172 102 Z"
+                fill="none"
+                stroke="#FFFFFF"
+                stroke-width="28"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+          <!-- Rupee Symbol -->
+          <line x1="168" y1="166" x2="346" y2="166" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+          <line x1="168" y1="215" x2="346" y2="215" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+          <path d="M 256 166
+                   C 298 166 298 220 286 240
+                   C 274 260 230 264 186 264"
+                fill="none"
+                stroke="#FFFFFF"
+                stroke-width="28"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+          <line x1="186" y1="264" x2="276" y2="345" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const slider = document.getElementById('opacitySlider');
+    const opacityVal = document.getElementById('opacityVal');
+    const vectorLayer = document.getElementById('vectorLayer');
+    const origLayer = document.getElementById('origLayer');
+    const highlightCheck = document.getElementById('highlightCheck');
+    const showOrigCheck = document.getElementById('showOrigCheck');
+
+    slider.addEventListener('input', () => {
+      vectorLayer.style.opacity = slider.value;
+      opacityVal.textContent = Math.round(slider.value * 100) + '%';
+    });
+
+    highlightCheck.addEventListener('change', () => {
+      const color = highlightCheck.checked ? '#00F5FF' : '#FFFFFF';
+      document.querySelectorAll('#vectorLayer .vector-stroke').forEach(el => el.setAttribute('stroke', color));
+    });
+
+    showOrigCheck.addEventListener('change', () => {
+      origLayer.style.display = showOrigCheck.checked ? 'block' : 'none';
+    });
+  </script>
+</body>
+</html>
+

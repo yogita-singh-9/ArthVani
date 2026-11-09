@@ -194,7 +194,8 @@ FILLER_WORDS: set[str] = {
     *CURRENCY_WORDS,
     *TOTAL_WORDS,
     # Hindi grammatical particles
-    "ka", "ki", "ke", "ko", "का", "की", "के", "को",
+    "ka", "ki", "ke", "ko", "se", "me", "mein",
+    "का", "की", "के", "को", "से", "में",
     # Context / location
     "aaj", "आज",
     # Action words (not the item)
@@ -202,7 +203,7 @@ FILLER_WORDS: set[str] = {
     "kharida", "kharidi", "khareeda", "खरीदा", "खरीदी",
     "bought", "purchased", "purchase",
     # Price qualifiers
-    "per", "each", "प्रति", "भाव", "rate",
+    "per", "each", "प्रति", "भाव", "rate", "पर",
     # Misc
     "hai", "hain", "aur",
 }
@@ -340,14 +341,22 @@ def _find_units(tokens: list[str]) -> list[tuple[int, str]]:
 # 6. HELPER: ITEM EXTRACTION
 # ════════════════════════════════════════════════════════════
 
+_RATE_QUALIFIERS: set[str] = {"per", "each", "प्रति", "भाव", "rate", "पर"}
+
 def _extract_item(tokens: list[str], skip: set[int]) -> str:
     """
     Return the item name: tokens not in `skip` and not in FILLER_WORDS.
     Original script and word order are preserved.
     """
+    skip_all = set(skip)
+    # The token directly following a rate qualifier (e.g. '₹5 पर केला' -> 'केला') is the price divisor
+    for i, t in enumerate(tokens):
+        if (t in _RATE_QUALIFIERS or t.lower() in _RATE_QUALIFIERS) and i + 1 < len(tokens):
+            skip_all.add(i + 1)
+
     parts = []
     for i, t in enumerate(tokens):
-        if i in skip:
+        if i in skip_all:
             continue
         t_low = t.lower().lstrip("₹")
         if t_low in FILLER_WORDS or t in FILLER_WORDS:

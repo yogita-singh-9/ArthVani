@@ -31,14 +31,16 @@ _STRINGS: dict[str, dict[str, str]] = {
 
     # Navigation
     "nav_dashboard":  {"en": "Dashboard",          "hi": "डैशबोर्ड"},
-    "nav_speak":      {"en": "Speak",              "hi": "बोलिए"},
+    "nav_speak":      {"en": "Record entry",       "hi": "एंट्री दर्ज करें"},
+    "nav_record":     {"en": "Record entry",       "hi": "एंट्री दर्ज करें"},
     "nav_ledger":     {"en": "Ledger",             "hi": "बही-खाता"},
     "nav_reports":    {"en": "Reports",            "hi": "रिपोर्ट"},
     "nav_settings":   {"en": "Settings",           "hi": "सेटिंग"},
 
     # Status
-    "status_api":     {"en": "API",                "hi": "API"},
-    "status_mic":     {"en": "Mic",                "hi": "माइक"},
+    "status_api":     {"en": "Connected",          "hi": "कनेक्टेड"},
+    "status_mic":     {"en": "Mic ready",          "hi": "माइक तैयार"},
+    "shop_label":     {"en": "Shop",               "hi": "दुकान"},
 
     # Greeting
     "greeting_morning":   {"en": "Good morning",   "hi": "सुप्रभात"},
@@ -46,8 +48,12 @@ _STRINGS: dict[str, dict[str, str]] = {
     "greeting_evening":   {"en": "Good evening",   "hi": "शुभ संध्या"},
 
     # Dashboard
-    "chart_title":    {"en": "14-Day Overview",    "hi": "14 दिन का सारांश"},
-    "top_items":      {"en": "Top Items",          "hi": "शीर्ष सामान"},
+    "chart_title":          {"en": "Sales and purchases", "hi": "बिक्री और खरीद"},
+    "sales_and_purchases":  {"en": "Sales and purchases", "hi": "बिक्री और खरीद"},
+    "range_7d":             {"en": "7 days",              "hi": "7 दिन"},
+    "range_14d":            {"en": "14 days",             "hi": "14 दिन"},
+    "range_30d":            {"en": "30 days",             "hi": "30 दिन"},
+    "top_items":            {"en": "Top Items",          "hi": "शीर्ष सामान"},
     "recent_entries": {"en": "Recent Entries",     "hi": "हालिया एंट्री"},
     "hero_cta_title": {"en": "Ready to record?",   "hi": "एंट्री दर्ज करने के लिए तैयार?"},
     "hero_cta_sub":   {"en": "Tap the button and say your entry in Hindi or English.",

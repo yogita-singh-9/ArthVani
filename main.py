@@ -67,13 +67,16 @@ app.add_middleware(
 
 _DB_PATH = str(_ROOT / "arthvani.db")
 _STATIC  = _ROOT / "static"
+_BRAND   = _ROOT / "brand"
 
 # Initialise DB on startup
 _db.init_db(_DB_PATH)
 
-# Mount static files
+# Mount static and brand asset files
 if _STATIC.exists():
     app.mount("/static", StaticFiles(directory=str(_STATIC)), name="static")
+if _BRAND.exists():
+    app.mount("/brand", StaticFiles(directory=str(_BRAND)), name="brand")
 
 
 # ── Root ──────────────────────────────────────────────────────────────────────

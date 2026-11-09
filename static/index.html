@@ -6,12 +6,18 @@
   <meta name="description" content="ArthVani – Voice-first ledger for kirana shops. बोलिए, हिसाब हो जाएगा।"/>
   <title>ArthVani – बोलिए, हिसाब हो जाएगा</title>
 
-  <!-- Google Fonts -->
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/brand/png/favicon-32.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/brand/png/apple-touch-icon.png"/>
+  <meta name="theme-color" content="#2A0E22"/>
+
+  <!-- Google Fonts: Inter (Latin) + Noto Sans Devanagari (Hindi) -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet"/>
 
-  <!-- Chart.js CDN (graceful degradation: charts hidden if unavailable) -->
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
   <link rel="stylesheet" href="/static/styles.css"/>
@@ -27,83 +33,104 @@
   <aside id="sidebar" role="navigation" aria-label="Main navigation">
     <div class="sidebar-inner">
 
-      <!-- Logo -->
-      <div class="sidebar-logo">
-        <div class="logo-icon" aria-hidden="true">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Mic body -->
-            <rect x="17" y="4" width="14" height="22" rx="7" fill="#E85D9A"/>
-            <!-- Mic stand -->
-            <path d="M12 22c0 6.627 5.373 12 12 12s12-5.373 12-12" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <line x1="24" y1="34" x2="24" y2="42" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round"/>
-            <line x1="17" y1="42" x2="31" y2="42" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round"/>
-            <!-- Rupee accent -->
-            <text x="20" y="19" font-size="10" font-weight="700" fill="white" font-family="sans-serif">₹</text>
+      <!-- Logo (Clean Vector Horizontal Lockup) -->
+      <a href="#dashboard" class="sidebar-logo" aria-label="ArthVani Home">
+        <img src="/brand/logo-horizontal-on-dark.svg" alt="ArthVani" class="sidebar-brand-img" height="32" style="height:32px; width:auto; display:block;"/>
+      </a>
+
+      <!-- Shop info -->
+      <div class="shop-card">
+        <div class="shop-icon" aria-hidden="true">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/>
+            <path d="M2 7h20"/>
           </svg>
         </div>
-        <div class="logo-text">
-          <span class="logo-brand">ArthVani</span>
-          <span class="logo-tagline" data-i18n="tagline">बोलिए, हिसाब हो जाएगा।</span>
-        </div>
-      </div>
-
-      <!-- Shop card -->
-      <div class="shop-card">
-        <div class="shop-icon" aria-hidden="true">🏪</div>
         <div class="shop-info">
-          <div class="shop-name" id="shopNameDisplay" data-i18n-fallback="My Kirana Store">My Kirana Store</div>
-          <button class="shop-edit-btn" id="shopEditBtn" aria-label="Edit shop name">✏️</button>
+          <div class="shop-name" id="shopNameDisplay" title="My Kirana Store">My Kirana Store</div>
+          <div class="shop-subtext" data-i18n="shop_label">Shop</div>
         </div>
       </div>
 
       <!-- Nav -->
       <nav class="sidebar-nav">
         <a href="#dashboard" class="nav-item active" data-tab="dashboard" aria-current="page">
-          <span class="nav-icon" aria-hidden="true">📊</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="7" height="9" x="3" y="3" rx="1"/>
+              <rect width="7" height="5" x="14" y="3" rx="1"/>
+              <rect width="7" height="9" x="14" y="12" rx="1"/>
+              <rect width="7" height="5" x="3" y="16" rx="1"/>
+            </svg>
+          </span>
           <span data-i18n="nav_dashboard">Dashboard</span>
         </a>
-        <a href="#speak" class="nav-item" data-tab="speak" aria-label="Voice entry">
-          <span class="nav-icon" aria-hidden="true">🎙️</span>
-          <span data-i18n="nav_speak">Speak</span>
+        <a href="#speak" class="nav-item" data-tab="speak" aria-label="Record entry">
+          <span class="nav-icon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+          </span>
+          <span data-i18n="nav_record">Record entry</span>
         </a>
         <a href="#ledger" class="nav-item" data-tab="ledger">
-          <span class="nav-icon" aria-hidden="true">📒</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+          </span>
           <span data-i18n="nav_ledger">Ledger</span>
         </a>
         <a href="#reports" class="nav-item" data-tab="reports">
-          <span class="nav-icon" aria-hidden="true">📈</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" x2="18" y1="20" y2="10"/>
+              <line x1="12" x2="12" y1="20" y2="4"/>
+              <line x1="6" x2="6" y1="20" y2="14"/>
+            </svg>
+          </span>
           <span data-i18n="nav_reports">Reports</span>
         </a>
         <a href="#settings" class="nav-item" data-tab="settings">
-          <span class="nav-icon" aria-hidden="true">⚙️</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </span>
           <span data-i18n="nav_settings">Settings</span>
         </a>
       </nav>
 
-      <!-- Language toggle -->
-      <div class="lang-toggle" role="group" aria-label="Language selector">
-        <button class="lang-btn active" id="langHi" aria-pressed="true">हिंदी</button>
-        <button class="lang-btn" id="langEn" aria-pressed="false">English</button>
+      <!-- Sidebar Footer (Pinned) -->
+      <div class="sidebar-footer">
+        <!-- Language toggle -->
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" id="langHi" aria-pressed="true">हिंदी</button>
+          <button class="lang-btn" id="langEn" aria-pressed="false">English</button>
+        </div>
+
+        <!-- Status chips -->
+        <div class="status-chips">
+          <div class="status-chip" id="apiStatusChip" title="Prisma STT and Timbre TTS API status">
+            <span class="chip-dot"></span>
+            <span data-i18n="status_api">Connected</span>
+          </div>
+          <div class="status-chip" id="micStatusChip" title="Microphone device input readiness">
+            <span class="chip-dot"></span>
+            <span data-i18n="status_mic">Mic ready</span>
+          </div>
+        </div>
+
+        <!-- Credit note -->
+        <div class="sidebar-credit" data-i18n="powered_by">Powered by Gnani AI Prisma &amp; Timbre</div>
       </div>
 
-      <!-- Status chips -->
-      <div class="status-chips">
-        <div class="status-chip" id="apiStatusChip">
-          <span class="chip-dot"></span>
-          <span data-i18n="status_api">API</span>
-        </div>
-        <div class="status-chip" id="micStatusChip">
-          <span class="chip-dot"></span>
-          <span data-i18n="status_mic">Mic</span>
-        </div>
-      </div>
-
-      <!-- Privacy note -->
-      <p class="sidebar-privacy" data-i18n="privacy_note">
-        🔒 Audio is sent to Gnani only for transcription and is not stored.
-      </p>
-
-      <div class="sidebar-credit" data-i18n="powered_by">Powered by Gnani AI Prisma &amp; Timbre</div>
     </div>
   </aside>
 
@@ -112,12 +139,26 @@
 
     <!-- TOP BAR -->
     <header id="topbar">
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
-      <h1 id="pageTitle" class="topbar-title" data-i18n="nav_dashboard">Dashboard</h1>
+      <div style="display:flex;align-items:center;">
+        <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12"/>
+            <line x1="4" x2="20" y1="6" y2="6"/>
+            <line x1="4" x2="20" y1="18" y2="18"/>
+          </svg>
+        </button>
+        <h1 id="pageTitle" class="topbar-title" data-i18n="nav_dashboard">Dashboard</h1>
+      </div>
+
       <div class="topbar-right">
         <span id="topbarDate" class="topbar-date"></span>
-        <button class="btn-speak-fab" id="topbarSpeakBtn" aria-label="Quick speak entry">
-          🎙️ <span data-i18n="speak">बोलिए</span>
+        <button class="btn-primary-topbar" id="topbarSpeakBtn" aria-label="Record entry">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+          <span data-i18n="nav_record">Record entry</span>
         </button>
       </div>
     </header>
@@ -127,45 +168,79 @@
 
     <!-- ══════════ TAB: DASHBOARD ══════════ -->
     <section id="tab-dashboard" class="tab-section active">
-      <div class="greeting" id="greeting"></div>
 
       <!-- Stat cards -->
       <div class="stats-grid">
         <div class="stat-card" id="cardSales">
-          <div class="stat-icon" aria-hidden="true">💰</div>
-          <div class="stat-body">
-            <div class="stat-label" data-i18n="today_sales">Today's Sales</div>
-            <div class="stat-value" id="statSales">₹0</div>
+          <div class="stat-header">
+            <span class="stat-label" data-i18n="today_sales">Today's Sales</span>
+            <div class="stat-icon" aria-hidden="true">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 7h10v10"/>
+                <path d="M7 17 17 7"/>
+              </svg>
+            </div>
           </div>
+          <div class="stat-value" id="statSales">₹0</div>
         </div>
+
         <div class="stat-card" id="cardPurchases">
-          <div class="stat-icon" aria-hidden="true">🛒</div>
-          <div class="stat-body">
-            <div class="stat-label" data-i18n="today_purchases">Today's Purchases</div>
-            <div class="stat-value" id="statPurchases">₹0</div>
+          <div class="stat-header">
+            <span class="stat-label" data-i18n="today_purchases">Today's Purchases</span>
+            <div class="stat-icon" aria-hidden="true">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 17H7V7"/>
+                <path d="M17 7 7 17"/>
+              </svg>
+            </div>
           </div>
+          <div class="stat-value" id="statPurchases">₹0</div>
         </div>
+
         <div class="stat-card" id="cardNet">
-          <div class="stat-icon" aria-hidden="true">📊</div>
-          <div class="stat-body">
-            <div class="stat-label" data-i18n="today_net">Net</div>
-            <div class="stat-value" id="statNet">₹0</div>
+          <div class="stat-header">
+            <span class="stat-label" data-i18n="today_net">Net</span>
+            <div class="stat-icon" aria-hidden="true">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                <path d="M7 21h10"/>
+                <path d="M12 3v18"/>
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+              </svg>
+            </div>
           </div>
+          <div class="stat-value" id="statNet">₹0</div>
         </div>
+
         <div class="stat-card" id="cardEntries">
-          <div class="stat-icon" aria-hidden="true">📝</div>
-          <div class="stat-body">
-            <div class="stat-label" data-i18n="today_entries">Entries</div>
-            <div class="stat-value" id="statEntries">0</div>
+          <div class="stat-header">
+            <span class="stat-label" data-i18n="today_entries">Entries</span>
+            <div class="stat-icon" aria-hidden="true">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" x2="8" y1="13" y2="13"/>
+                <line x1="16" x2="8" y1="17" y2="17"/>
+              </svg>
+            </div>
           </div>
+          <div class="stat-value" id="statEntries">0</div>
         </div>
       </div>
 
-      <!-- 14-day chart -->
+      <!-- Chart card -->
       <div class="card chart-card">
-        <h2 class="card-title" data-i18n="chart_title">14-Day Overview</h2>
+        <div class="chart-header">
+          <h2 class="card-title" data-i18n="sales_and_purchases">Sales and purchases</h2>
+          <div class="chart-range-toggle" role="group" aria-label="Chart date range">
+            <button class="chart-range-btn active" data-range="7" data-i18n="range_7d">7 days</button>
+            <button class="chart-range-btn" data-range="14" data-i18n="range_14d">14 days</button>
+            <button class="chart-range-btn" data-range="30" data-i18n="range_30d">30 days</button>
+          </div>
+        </div>
         <div class="chart-wrap">
-          <canvas id="chart14d" role="img" aria-label="14-day sales and purchases chart"></canvas>
+          <canvas id="chart14d" role="img" aria-label="Sales and purchases chart"></canvas>
         </div>
       </div>
 
@@ -187,141 +262,190 @@
           <h2 data-i18n="hero_cta_title">Ready to record?</h2>
           <p data-i18n="hero_cta_sub">Tap the button and say your entry in Hindi or English.</p>
         </div>
-        <button class="btn-primary btn-hero" id="dashSpeakBtn" aria-label="Start voice entry">
-          🎙️ <span data-i18n="speak">बोलिए</span>
+        <button class="btn-primary" id="dashSpeakBtn" aria-label="Record entry">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+          <span data-i18n="nav_record">Record entry</span>
         </button>
       </div>
     </section>
 
-    <!-- ══════════ TAB: SPEAK ══════════ -->
-    <section id="tab-speak" class="tab-section" aria-label="Voice entry">
+    <!-- ══════════ TAB: SPEAK (RECORD ENTRY) ══════════ -->
+    <section id="tab-speak" class="tab-section" aria-label="Record entry">
+      <div class="speak-container">
 
-      <!-- Stepper -->
-      <div class="stepper" id="stepper" aria-label="Recording steps">
-        <div class="step active" id="step0" data-i18n="step_listen">Listening</div>
-        <div class="step-sep" aria-hidden="true">›</div>
-        <div class="step" id="step1" data-i18n="step_understand">Understanding</div>
-        <div class="step-sep" aria-hidden="true">›</div>
-        <div class="step" id="step2" data-i18n="step_readback">Reading back</div>
-        <div class="step-sep" aria-hidden="true">›</div>
-        <div class="step" id="step3" data-i18n="step_saved">Saved</div>
-      </div>
-
-      <!-- Example chips -->
-      <div class="chips" id="exampleChips" aria-label="Example phrases">
-        <span class="chip-label" data-i18n="try_saying">Try saying:</span>
-        <button class="chip" data-i18n="example_1">50 kilo rice 60 rupees per kilo</button>
-        <button class="chip" data-i18n="example_2">2 litre milk 55 rupees per litre</button>
-        <button class="chip" data-i18n="example_3">12 soap 30 rupees each</button>
-      </div>
-
-      <!-- Mic button + waveform -->
-      <div class="mic-area">
-        <div class="waveform-wrap" id="waveformWrap" aria-hidden="true">
-          <canvas id="waveform" width="320" height="64"></canvas>
-        </div>
-        <button class="mic-btn" id="micBtn" aria-label="Start recording" aria-pressed="false">
-          <span class="mic-icon" aria-hidden="true">🎙️</span>
-          <span class="mic-label" data-i18n="speak">बोलिए</span>
-        </button>
-        <div class="mic-hint" data-i18n="speak_hint">Tap the mic and say an entry</div>
-        <div class="mic-timer" id="micTimer" aria-live="polite"></div>
-      </div>
-
-      <!-- Transcript bubble -->
-      <div class="transcript-bubble" id="transcriptBubble" style="display:none" role="status">
-        <div class="bubble-label" data-i18n="transcript_raw">What we heard</div>
-        <div class="bubble-text" id="transcriptText"></div>
-      </div>
-
-      <!-- Review card -->
-      <div class="review-card" id="reviewCard" style="display:none">
-        <div class="review-header">
-          <h2 data-i18n="confirm_title">Confirm entry</h2>
-          <div class="review-warn" id="reviewWarn" style="display:none" data-i18n="needs_review">
-            ⚠ Some fields could not be detected. Please fill them in.
-          </div>
+        <!-- Stepper -->
+        <div class="stepper" id="stepper" aria-label="Recording steps">
+          <div class="step active" id="step0" data-i18n="step_listen">Listening</div>
+          <div class="step-sep" aria-hidden="true">›</div>
+          <div class="step" id="step1" data-i18n="step_understand">Understanding</div>
+          <div class="step-sep" aria-hidden="true">›</div>
+          <div class="step" id="step2" data-i18n="step_readback">Reading back</div>
+          <div class="step-sep" aria-hidden="true">›</div>
+          <div class="step" id="step3" data-i18n="step_saved">Saved</div>
         </div>
 
-        <div class="review-fields">
-          <div class="field-group">
-            <label for="revItem" data-i18n="item">Item</label>
-            <input type="text" id="revItem" class="rev-input" autocomplete="off" spellcheck="false"/>
+        <!-- Example chips -->
+        <div class="chips" id="exampleChips" aria-label="Example phrases">
+          <span class="chip-label" data-i18n="try_saying">Try saying:</span>
+          <button class="chip" data-i18n="example_1">50 kilo rice 60 rupees per kilo</button>
+          <button class="chip" data-i18n="example_2">2 litre milk 55 rupees per litre</button>
+          <button class="chip" data-i18n="example_3">12 soap 30 rupees each</button>
+        </div>
+
+        <!-- Mic button + waveform -->
+        <div class="mic-area">
+          <div class="record-watermark" aria-hidden="true" style="margin-bottom:12px;">
+            <img src="/brand/logo-mark-on-light.svg" alt="" width="52" height="52" style="opacity: 0.2; display:block; margin:0 auto;"/>
           </div>
-          <div class="field-row">
+          <div class="waveform-wrap" id="waveformWrap" aria-hidden="true">
+            <canvas id="waveform" width="360" height="60"></canvas>
+          </div>
+          <button class="mic-btn" id="micBtn" aria-label="Start recording" aria-pressed="false">
+            <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+            <span class="mic-label" data-i18n="speak">बोलिए</span>
+          </button>
+          <div class="mic-hint" data-i18n="speak_hint">Tap the mic and say an entry</div>
+          <p class="record-tagline" data-i18n="tagline" style="font-size:12px;color:var(--text-muted);margin-top:6px;">बोलिए, हिसाब हो जाएगा।</p>
+          <div class="mic-timer" id="micTimer" aria-live="polite"></div>
+        </div>
+
+        <!-- Transcript bubble -->
+        <div class="transcript-bubble" id="transcriptBubble" style="display:none" role="status">
+          <div class="bubble-label" data-i18n="transcript_raw">What we heard</div>
+          <div class="bubble-text" id="transcriptText"></div>
+        </div>
+
+        <!-- Review card -->
+        <div class="review-card" id="reviewCard" style="display:none">
+          <div class="review-header">
+            <h2 data-i18n="confirm_title">Confirm entry</h2>
+            <div class="review-warn" id="reviewWarn" style="display:none" data-i18n="needs_review">
+              Some fields could not be detected. Please fill them in.
+            </div>
+          </div>
+
+          <div class="review-fields">
             <div class="field-group">
-              <label for="revQty" data-i18n="qty">Quantity</label>
-              <input type="number" id="revQty" class="rev-input" min="0" step="0.01"/>
+              <label for="revItem" data-i18n="item">Item</label>
+              <input type="text" id="revItem" class="rev-input" autocomplete="off" spellcheck="false"/>
             </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="revQty" data-i18n="qty">Quantity</label>
+                <input type="number" id="revQty" class="rev-input" min="0" step="0.01"/>
+              </div>
+              <div class="field-group">
+                <label for="revUnit" data-i18n="unit">Unit</label>
+                <select id="revUnit" class="rev-select"></select>
+              </div>
+            </div>
+
             <div class="field-group">
-              <label for="revUnit" data-i18n="unit">Unit</label>
-              <select id="revUnit" class="rev-select"></select>
+              <label for="revPrice" data-i18n="price">Price (₹/unit)</label>
+              <input type="number" id="revPrice" class="rev-input" min="0" step="0.01"/>
+            </div>
+
+            <!-- Type toggle -->
+            <div class="field-group">
+              <label data-i18n="type">Type</label>
+              <div class="type-toggle" role="group" aria-label="Entry type">
+                <button class="type-btn active" id="typeSale" data-type="sale" data-i18n="sale">Sale</button>
+                <button class="type-btn" id="typePurchase" data-type="purchase" data-i18n="purchase">Purchase</button>
+              </div>
+            </div>
+
+            <!-- Computed total preview -->
+            <div class="total-preview">
+              <span data-i18n="total">Total (₹)</span>
+              <span class="total-amount" id="revTotal">₹0</span>
             </div>
           </div>
-          <div class="field-group">
-            <label for="revPrice" data-i18n="price">Price (₹/unit)</label>
-            <input type="number" id="revPrice" class="rev-input" min="0" step="0.01"/>
+
+          <!-- TTS playback -->
+          <div class="readback-row">
+            <span data-i18n="readback_playing">Reading back…</span>
+            <audio id="ttsAudio" aria-label="TTS readback audio"></audio>
+            <button class="btn-icon" id="replayBtn" aria-label="Replay readback" title="Replay">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
           </div>
 
-          <!-- Type toggle -->
-          <div class="field-group">
-            <label data-i18n="type">Type</label>
-            <div class="type-toggle" role="group" aria-label="Entry type">
-              <button class="type-btn active" id="typeSale" data-type="sale" data-i18n="sale">Sale</button>
-              <button class="type-btn" id="typePurchase" data-type="purchase" data-i18n="purchase">Purchase</button>
-            </div>
-          </div>
-
-          <!-- Live total -->
-          <div class="total-preview">
-            <span data-i18n="total">Total (₹)</span>
-            <span class="total-amount" id="revTotal">₹0.00</span>
+          <!-- Actions -->
+          <div class="review-actions">
+            <button class="btn-primary" id="saveBtn" data-i18n="save_entry">Save entry</button>
+            <button class="btn-secondary" id="rerecordBtn" data-i18n="rerecord">Re-record</button>
+            <button class="btn-ghost" id="discardBtn" data-i18n="discard">Discard</button>
           </div>
         </div>
 
-        <!-- TTS playback -->
-        <div class="readback-row">
-          <span data-i18n="readback_playing">Reading back…</span>
-          <audio id="ttsAudio" aria-label="TTS readback audio"></audio>
-          <button class="btn-icon" id="replayBtn" aria-label="Replay readback" title="Replay">🔊</button>
-        </div>
+        <!-- Type-it fallback -->
+        <details class="type-fallback">
+          <summary data-i18n="manual_entry">Type it instead</summary>
+          <div class="type-fallback-body">
+            <input type="text" id="manualText" class="rev-input" placeholder="50 kilo rice 60 rupees" autocomplete="off"/>
+            <button class="btn-secondary" id="manualParseBtn" data-i18n="manual_save">Parse &amp; Review</button>
+          </div>
+        </details>
 
-        <!-- Actions -->
-        <div class="review-actions">
-          <button class="btn-primary" id="saveBtn" data-i18n="save_entry">Save entry</button>
-          <button class="btn-secondary" id="rerecordBtn" data-i18n="rerecord">Re-record</button>
-          <button class="btn-ghost" id="discardBtn" data-i18n="discard">Discard</button>
-        </div>
       </div>
-
-      <!-- Type-it fallback -->
-      <details class="type-fallback">
-        <summary data-i18n="manual_entry">⌨ Type it instead</summary>
-        <div class="type-fallback-body">
-          <input type="text" id="manualText" class="rev-input" placeholder="50 kilo rice 60 rupees" autocomplete="off"/>
-          <button class="btn-secondary" id="manualParseBtn" data-i18n="manual_save">Parse &amp; Review</button>
-        </div>
-      </details>
     </section>
 
     <!-- ══════════ TAB: LEDGER ══════════ -->
     <section id="tab-ledger" class="tab-section" aria-label="Ledger">
       <div class="ledger-toolbar">
-        <input type="search" id="ledgerSearch" class="search-input" data-i18n-placeholder="search_placeholder" placeholder="Search item…" aria-label="Search entries"/>
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+          </span>
+          <input type="search" id="ledgerSearch" class="search-input" data-i18n-placeholder="search_placeholder" placeholder="Search item…" aria-label="Search entries"/>
+        </div>
+
         <div class="filter-group" role="group" aria-label="Filter by type">
           <button class="filter-btn active" data-filter="" data-i18n="filter_all">All</button>
-          <button class="filter-btn" data-filter="sale" data-i18n="filter_sales">Sales</button>
-          <button class="filter-btn" data-filter="purchase" data-i18n="filter_purchases">Purchases</button>
+          <button class="filter-btn" data-filter="sale" data-i18n="sale">Sales</button>
+          <button class="filter-btn" data-filter="purchase" data-i18n="purchase">Purchases</button>
         </div>
+
         <select id="dateRangeSelect" class="rev-select" aria-label="Date range">
           <option value="" data-i18n="date_all">All time</option>
           <option value="today" data-i18n="date_today">Today</option>
           <option value="7d" data-i18n="date_7d">Last 7 days</option>
           <option value="30d" data-i18n="date_30d">Last 30 days</option>
         </select>
+
         <div class="export-btns">
-          <button class="btn-export" id="exportXlsx" data-i18n="download_xlsx">⬇ Excel</button>
-          <button class="btn-export" id="exportCsv" data-i18n="download_csv">⬇ CSV</button>
+          <button class="btn-export" id="exportXlsx" data-i18n="download_xlsx">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" x2="12" y1="15" y2="3"/>
+            </svg>
+            <span>Excel</span>
+          </button>
+          <button class="btn-export" id="exportCsv" data-i18n="download_csv">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" x2="12" y1="15" y2="3"/>
+            </svg>
+            <span>CSV</span>
+          </button>
         </div>
       </div>
 
@@ -333,18 +457,24 @@
               <th data-i18n="time">Time</th>
               <th data-i18n="type">Type</th>
               <th data-i18n="item">Item</th>
-              <th data-i18n="qty">Qty</th>
+              <th class="cell-num" data-i18n="qty">Qty</th>
               <th data-i18n="unit">Unit</th>
-              <th data-i18n="price">Price</th>
-              <th data-i18n="total">Total</th>
+              <th class="cell-num" data-i18n="price">Price</th>
+              <th class="cell-total" data-i18n="total">Total</th>
               <th aria-label="Actions"></th>
             </tr>
           </thead>
           <tbody id="ledgerBody"></tbody>
           <tfoot id="ledgerFoot"></tfoot>
         </table>
+
         <div id="ledgerEmpty" class="empty-state" style="display:none">
-          <div class="empty-icon" aria-hidden="true">📒</div>
+          <div class="empty-icon" aria-hidden="true">
+            <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+          </div>
           <p data-i18n="empty_table">No entries yet. Speak or type your first entry above.</p>
           <button class="btn-secondary" id="ledgerDemoBtn" data-i18n="demo_data">Load demo entries</button>
         </div>
@@ -352,9 +482,17 @@
 
       <!-- Pagination -->
       <div class="pagination" id="pagination" aria-label="Pagination">
-        <button class="page-btn" id="pagePrev" aria-label="Previous page" disabled>‹</button>
+        <button class="page-btn" id="pagePrev" aria-label="Previous page" disabled>
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
+        </button>
         <span id="pageInfo" class="page-info"></span>
-        <button class="page-btn" id="pageNext" aria-label="Next page">›</button>
+        <button class="page-btn" id="pageNext" aria-label="Next page">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
       </div>
     </section>
 
@@ -368,6 +506,7 @@
           <option value="30d" data-i18n="date_30d">Last 30 days</option>
         </select>
       </div>
+
       <div class="reports-grid">
         <div class="card">
           <h2 class="card-title" data-i18n="sales_vs_purchases">Sales vs Purchases</h2>
@@ -375,15 +514,23 @@
         </div>
         <div class="card">
           <h2 class="card-title" data-i18n="top_items">Top Items</h2>
-          <div id="reportTopItems"></div>
+          <div id="reportTopItems" class="top-items-list"></div>
         </div>
         <div class="card stat-summary-card">
           <h2 class="card-title" data-i18n="summary">Summary</h2>
           <div id="reportSummary"></div>
         </div>
       </div>
+
       <div class="report-export">
-        <button class="btn-export" id="reportExportXlsx" data-i18n="download_xlsx">⬇ Excel Report</button>
+        <button class="btn-export" id="reportExportXlsx" data-i18n="download_xlsx">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+          <span>Excel Report</span>
+        </button>
       </div>
     </section>
 
@@ -402,9 +549,9 @@
 
         <div class="card settings-section">
           <h2 class="card-title" data-i18n="settings_language">Language</h2>
-          <div class="lang-toggle">
-            <button class="lang-btn active" id="settLangHi" aria-pressed="true">हिंदी</button>
-            <button class="lang-btn" id="settLangEn" aria-pressed="false">English</button>
+          <div class="lang-toggle" style="max-width:240px;background:var(--page);border:1px solid var(--border)">
+            <button class="lang-btn active" id="settLangHi" aria-pressed="true" style="color:var(--text)">हिंदी</button>
+            <button class="lang-btn" id="settLangEn" aria-pressed="false" style="color:var(--text)">English</button>
           </div>
         </div>
 
@@ -427,19 +574,19 @@
         <div class="card settings-section">
           <h2 class="card-title" data-i18n="how_it_works">How it works</h2>
           <ol class="how-list">
-            <li data-i18n="how_step1">Tap Speak and say an entry</li>
-            <li data-i18n="how_step2">App hears, understands and reads it back</li>
-            <li data-i18n="how_step3">Confirm or correct, then it's saved</li>
-            <li data-i18n="how_step4">Download your ledger as Excel or CSV</li>
+            <li data-i18n="how_step1">1. Tap Record entry and say an entry</li>
+            <li data-i18n="how_step2">2. App hears, understands and reads it back</li>
+            <li data-i18n="how_step3">3. Confirm or correct, then it is saved</li>
+            <li data-i18n="how_step4">4. Download your ledger as Excel or CSV</li>
           </ol>
         </div>
 
         <div class="card settings-section">
           <h2 class="card-title" data-i18n="settings_examples">Supported Sentence Patterns</h2>
           <ul class="example-list">
-            <li data-i18n="example_1">50 kilo rice 60 rupees per kilo</li>
-            <li data-i18n="example_2">2 litre milk 55 rupees per litre</li>
-            <li data-i18n="example_3">12 soap 30 rupees each</li>
+            <li data-i18n="example_1">"50 kilo rice 60 rupees per kilo"</li>
+            <li data-i18n="example_2">"2 litre milk 55 rupees per litre"</li>
+            <li data-i18n="example_3">"12 soap 30 rupees each"</li>
             <li>50 किलो चावल ₹60 किलो</li>
             <li>दो लीटर दूध पचपन रुपये लीटर</li>
             <li>dedh kg paneer 300 rupees</li>
@@ -448,7 +595,7 @@
 
         <div class="card settings-section">
           <h2 class="card-title" data-i18n="privacy_title">Privacy &amp; Security</h2>
-          <p class="settings-desc" data-i18n="privacy_note">🔒 Audio is sent to Gnani only for transcription and is not stored.</p>
+          <p class="settings-desc" data-i18n="privacy_note">Audio is sent to Gnani only for transcription and is not stored.</p>
           <p class="settings-desc" data-i18n="privacy_note2">No customer data is stored in the cloud. Your ledger lives locally on this device.</p>
         </div>
 
@@ -462,7 +609,7 @@
 <!-- Edit dialog -->
 <dialog id="editDialog" aria-modal="true" aria-labelledby="editDialogTitle">
   <div class="dialog-inner">
-    <h2 id="editDialogTitle" data-i18n="edit_entry">Edit Entry</h2>
+    <h2 id="editDialogTitle" class="card-title" data-i18n="edit_entry">Edit Entry</h2>
     <input type="hidden" id="editId"/>
     <div class="field-group">
       <label for="editItem" data-i18n="item">Item</label>
@@ -484,7 +631,7 @@
     </div>
     <div class="total-preview">
       <span data-i18n="total">Total</span>
-      <span class="total-amount" id="editTotal">₹0.00</span>
+      <span class="total-amount" id="editTotal">₹0</span>
     </div>
     <div class="dialog-actions">
       <button class="btn-primary" id="editSaveBtn" data-i18n="save">Save</button>
@@ -496,8 +643,8 @@
 <!-- Delete confirm dialog -->
 <dialog id="deleteDialog" aria-modal="true" aria-labelledby="deleteDialogTitle">
   <div class="dialog-inner">
-    <h2 id="deleteDialogTitle" data-i18n="delete_confirm_title">Delete entry?</h2>
-    <p data-i18n="delete_confirm_body">This action cannot be undone.</p>
+    <h2 id="deleteDialogTitle" class="card-title" data-i18n="delete_confirm_title">Delete entry?</h2>
+    <p class="settings-desc" data-i18n="delete_confirm_body">This action cannot be undone.</p>
     <div class="dialog-actions">
       <button class="btn-danger" id="deleteConfirmBtn" data-i18n="delete">Delete</button>
       <button class="btn-ghost" id="deleteCancelBtn" data-i18n="cancel">Cancel</button>
@@ -508,23 +655,42 @@
 <!-- Mobile bottom tab bar -->
 <nav id="bottomBar" class="bottom-bar" aria-label="Mobile navigation">
   <a href="#dashboard" class="bottom-tab active" data-tab="dashboard" aria-label="Dashboard">
-    <span aria-hidden="true">📊</span>
+    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="7" height="9" x="3" y="3" rx="1"/>
+      <rect width="7" height="5" x="14" y="3" rx="1"/>
+      <rect width="7" height="9" x="14" y="12" rx="1"/>
+      <rect width="7" height="5" x="3" y="16" rx="1"/>
+    </svg>
     <span data-i18n="nav_dashboard">Dashboard</span>
   </a>
-  <a href="#speak" class="bottom-tab" data-tab="speak" aria-label="Speak">
-    <span aria-hidden="true">🎙️</span>
-    <span data-i18n="nav_speak">Speak</span>
+  <a href="#speak" class="bottom-tab" data-tab="speak" aria-label="Record entry">
+    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" x2="12" y1="19" y2="22"/>
+    </svg>
+    <span data-i18n="nav_record">Record</span>
   </a>
   <a href="#ledger" class="bottom-tab" data-tab="ledger" aria-label="Ledger">
-    <span aria-hidden="true">📒</span>
+    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>
     <span data-i18n="nav_ledger">Ledger</span>
   </a>
   <a href="#reports" class="bottom-tab" data-tab="reports" aria-label="Reports">
-    <span aria-hidden="true">📈</span>
+    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" x2="18" y1="20" y2="10"/>
+      <line x1="12" x2="12" y1="20" y2="4"/>
+      <line x1="6" x2="6" y1="20" y2="14"/>
+    </svg>
     <span data-i18n="nav_reports">Reports</span>
   </a>
   <a href="#settings" class="bottom-tab" data-tab="settings" aria-label="Settings">
-    <span aria-hidden="true">⚙️</span>
+    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
     <span data-i18n="nav_settings">Settings</span>
   </a>
 </nav>
@@ -532,4 +698,3 @@
 <script type="module" src="/static/app.js"></script>
 </body>
 </html>
-

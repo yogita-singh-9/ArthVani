@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <title>ArthVani Social Card</title>
+  <style>
+    .brand-title {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 88px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-tagline {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      fill: #D2B4C6;
+    }
+  </style>
+
+  <!-- Background in Maroon (#2A0E22) -->
+  <rect width="1200" height="630" fill="#2A0E22"/>
+
+  <!-- Logo Mark (220x220 at x=120, y=205) -->
+  <g transform="translate(120, 205) scale(0.4296875)">
+    <!-- Speech Bubble -->
+    <path d="M 172 102
+             L 338 102
+             A 76 76 0 0 1 414 178
+             L 414 306
+             A 76 76 0 0 1 338 382
+             L 214 382
+             L 156 442
+             A 10 10 0 0 1 140 434
+             L 140 376
+             C 140 342 96 332 96 296
+             L 96 178
+             A 76 76 0 0 1 172 102 Z"
+          fill="none"
+          stroke="#FFFFFF"
+          stroke-width="28"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    <!-- Rupee Symbol -->
+    <line x1="168" y1="166" x2="346" y2="166" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+    <line x1="168" y1="215" x2="346" y2="215" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+    <path d="M 256 166
+             C 298 166 298 220 286 240
+             C 274 260 230 264 186 264"
+          fill="none"
+          stroke="#FFFFFF"
+          stroke-width="28"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    <line x1="186" y1="264" x2="276" y2="345" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="380" y="305" class="brand-title">
+    <tspan fill="#FFFFFF">Arth</tspan><tspan fill="#FBCFE8">Vani</tspan>
+  </text>
+  <text x="385" y="375" class="brand-tagline">
+    Speak, and the ledger is done.
+  </text>
+</svg>
+

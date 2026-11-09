@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArthVani – Logo Variants & Scale Preview</title>
+  <style>
+    :root {
+      --sidebar: #2A0E22;
+      --accent:  #B8336A;
+      --surface: #FFFFFF;
+      --text:    #1A1118;
+      --muted:   #6E5E69;
+      --border:  #E8DFE5;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #F8F6F7;
+      color: var(--text);
+      padding: 40px;
+      line-height: 1.5;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    p.lead {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 32px;
+      max-width: 800px;
+    }
+    .variant-section {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .variant-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #F0E8ED;
+      padding-bottom: 12px;
+    }
+    .variant-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .variant-desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .scale-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .scale-row:last-child { margin-bottom: 0; }
+    .bg-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .showcase-strip {
+      display: flex;
+      align-items: flex-end;
+      gap: 32px;
+      padding: 24px 32px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .showcase-strip.on-dark {
+      background: var(--sidebar);
+      color: #FFFFFF;
+    }
+    .showcase-strip.on-light {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      color: var(--sidebar);
+    }
+    .size-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .size-tag {
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      opacity: 0.7;
+    }
+    .analysis-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 24px;
+      font-size: 13px;
+    }
+    .analysis-table th, .analysis-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .analysis-table th {
+      background: #FDFBFC;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .badge-rec {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #DCFCE7;
+      color: #15803D;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>ArthVani Mark – Multi-Scale Preview</h1>
+  <p class="lead">Testing the geometric vector mark across sizes (16, 24, 32, 64, 128px) on both dark maroon (#2A0E22) and white (#FFFFFF) backgrounds.</p>
+
+  <!-- Template definitions for SVG symbols -->
+  <svg style="display:none">
+    <defs>
+      <!-- (a) Outline Mark -->
+      <g id="mark-outline">
+        <path d="M 172 102
+                 L 338 102
+                 A 76 76 0 0 1 414 178
+                 L 414 306
+                 A 76 76 0 0 1 338 382
+                 L 214 382
+                 L 156 442
+                 A 10 10 0 0 1 140 434
+                 L 140 376
+                 C 140 342 96 332 96 296
+                 L 96 178
+                 A 76 76 0 0 1 172 102 Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="28"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+        <line x1="168" y1="166" x2="346" y2="166" stroke="currentColor" stroke-width="28" stroke-linecap="round"/>
+        <line x1="168" y1="215" x2="346" y2="215" stroke="currentColor" stroke-width="28" stroke-linecap="round"/>
+        <path d="M 256 166
+                 C 298 166 298 220 286 240
+                 C 274 260 230 264 186 264"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="28"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+        <line x1="186" y1="264" x2="276" y2="345" stroke="currentColor" stroke-width="28" stroke-linecap="round"/>
+      </g>
+
+      <!-- (b) Filled Bubble Mask -->
+      <mask id="rupee-mask">
+        <rect width="512" height="512" fill="black"/>
+        <path d="M 172 102
+                 L 338 102
+                 A 76 76 0 0 1 414 178
+                 L 414 306
+                 A 76 76 0 0 1 338 382
+                 L 214 382
+                 L 156 442
+                 A 10 10 0 0 1 140 434
+                 L 140 376
+                 C 140 342 96 332 96 296
+                 L 96 178
+                 A 76 76 0 0 1 172 102 Z"
+              fill="white"
+              stroke="white"
+              stroke-width="28"
+              stroke-linejoin="round" />
+        <line x1="168" y1="166" x2="346" y2="166" stroke="black" stroke-width="32" stroke-linecap="round"/>
+        <line x1="168" y1="215" x2="346" y2="215" stroke="black" stroke-width="32" stroke-linecap="round"/>
+        <path d="M 256 166
+                 C 298 166 298 220 286 240
+                 C 274 260 230 264 186 264"
+              fill="none"
+              stroke="black"
+              stroke-width="32"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+        <line x1="186" y1="264" x2="276" y2="345" stroke="black" stroke-width="32" stroke-linecap="round"/>
+      </mask>
+
+      <!-- (c) Two-Tone (White Bubble + Accent Rupee) -->
+      <g id="mark-two-tone">
+        <path d="M 172 102
+                 L 338 102
+                 A 76 76 0 0 1 414 178
+                 L 414 306
+                 A 76 76 0 0 1 338 382
+                 L 214 382
+                 L 156 442
+                 A 10 10 0 0 1 140 434
+                 L 140 376
+                 C 140 342 96 332 96 296
+                 L 96 178
+                 A 76 76 0 0 1 172 102 Z"
+              fill="none"
+              stroke="#FFFFFF"
+              stroke-width="28"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+        <g stroke="#B8336A" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="168" y1="166" x2="346" y2="166"/>
+          <line x1="168" y1="215" x2="346" y2="215"/>
+          <path d="M 256 166
+                   C 298 166 298 220 286 240
+                   C 274 260 230 264 186 264"/>
+          <line x1="186" y1="264" x2="276" y2="345"/>
+        </g>
+      </g>
+    </defs>
+  </svg>
+
+  <!-- ── VARIANT A ─────────────────────────────────────────── -->
+  <section class="variant-section">
+    <div class="variant-header">
+      <div class="variant-title">(a) Outline Mark (Original Concept)</div>
+      <div class="variant-desc">Faithful geometric outline with 28px uniform stroke</div>
+    </div>
+
+    <div class="scale-row">
+      <div class="bg-label">On Maroon (#2A0E22)</div>
+      <div class="showcase-strip on-dark">
+        <div class="size-col">
+          <svg width="128" height="128" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">128px</span>
+        </div>
+        <div class="size-col">
+          <svg width="64" height="64" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">64px</span>
+        </div>
+        <div class="size-col">
+          <svg width="32" height="32" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">32px</span>
+        </div>
+        <div class="size-col">
+          <svg width="24" height="24" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">24px</span>
+        </div>
+        <div class="size-col">
+          <svg width="16" height="16" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">16px</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scale-row">
+      <div class="bg-label">On White (#FFFFFF)</div>
+      <div class="showcase-strip on-light">
+        <div class="size-col">
+          <svg width="128" height="128" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">128px</span>
+        </div>
+        <div class="size-col">
+          <svg width="64" height="64" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">64px</span>
+        </div>
+        <div class="size-col">
+          <svg width="32" height="32" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">32px</span>
+        </div>
+        <div class="size-col">
+          <svg width="24" height="24" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">24px</span>
+        </div>
+        <div class="size-col">
+          <svg width="16" height="16" viewBox="0 0 512 512"><use href="#mark-outline"/></svg>
+          <span class="size-tag">16px</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── VARIANT B ─────────────────────────────────────────── -->
+  <section class="variant-section">
+    <div class="variant-header">
+      <div class="variant-title">(b) Filled Bubble with Knocked-Out Rupee</div>
+      <div class="variant-desc">Solid silhouette with transparent rupee cutout (High visual density)</div>
+    </div>
+
+    <div class="scale-row">
+      <div class="bg-label">On Maroon (#2A0E22)</div>
+      <div class="showcase-strip on-dark">
+        <div class="size-col">
+          <svg width="128" height="128" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFFFFF" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">128px</span>
+        </div>
+        <div class="size-col">
+          <svg width="64" height="64" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFFFFF" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">64px</span>
+        </div>
+        <div class="size-col">
+          <svg width="32" height="32" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFFFFF" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">32px</span>
+        </div>
+        <div class="size-col">
+          <svg width="24" height="24" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFFFFF" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">24px</span>
+        </div>
+        <div class="size-col">
+          <svg width="16" height="16" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFFFFF" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">16px</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scale-row">
+      <div class="bg-label">On White (#FFFFFF)</div>
+      <div class="showcase-strip on-light">
+        <div class="size-col">
+          <svg width="128" height="128" viewBox="0 0 512 512"><rect width="512" height="512" fill="var(--sidebar)" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">128px</span>
+        </div>
+        <div class="size-col">
+          <svg width="64" height="64" viewBox="0 0 512 512"><rect width="512" height="512" fill="var(--sidebar)" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">64px</span>
+        </div>
+        <div class="size-col">
+          <svg width="32" height="32" viewBox="0 0 512 512"><rect width="512" height="512" fill="var(--sidebar)" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">32px</span>
+        </div>
+        <div class="size-col">
+          <svg width="24" height="24" viewBox="0 0 512 512"><rect width="512" height="512" fill="var(--sidebar)" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">24px</span>
+        </div>
+        <div class="size-col">
+          <svg width="16" height="16" viewBox="0 0 512 512"><rect width="512" height="512" fill="var(--sidebar)" mask="url(#rupee-mask)"/></svg>
+          <span class="size-tag">16px</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── VARIANT C ─────────────────────────────────────────── -->
+  <section class="variant-section">
+    <div class="variant-header">
+      <div class="variant-title">(c) Two-Tone (White Bubble + Accent Rupee)</div>
+      <div class="variant-desc">Hierarchical pairing highlighting voice container vs currency mark</div>
+    </div>
+
+    <div class="scale-row">
+      <div class="bg-label">On Maroon (#2A0E22)</div>
+      <div class="showcase-strip on-dark">
+        <div class="size-col">
+          <svg width="128" height="128" viewBox="0 0 512 512"><use href="#mark-two-tone"/></svg>
+          <span class="size-tag">128px</span>
+        </div>
+        <div class="size-col">
+          <svg width="64" height="64" viewBox="0 0 512 512"><use href="#mark-two-tone"/></svg>
+          <span class="size-tag">64px</span>
+        </div>
+        <div class="size-col">
+          <svg width="32" height="32" viewBox="0 0 512 512"><use href="#mark-two-tone"/></svg>
+          <span class="size-tag">32px</span>
+        </div>
+        <div class="size-col">
+          <svg width="24" height="24" viewBox="0 0 512 512"><use href="#mark-two-tone"/></svg>
+          <span class="size-tag">24px</span>
+        </div>
+        <div class="size-col">
+          <svg width="16" height="16" viewBox="0 0 512 512"><use href="#mark-two-tone"/></svg>
+          <span class="size-tag">16px</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── READABILITY ANALYSIS & RECOMMENDATION ───────────────── -->
+  <section class="variant-section">
+    <h2 style="font-size:18px;margin-bottom:12px;">Variant Readability &amp; Application Recommendations</h2>
+    <table class="analysis-table">
+      <thead>
+        <tr>
+          <th>Variant</th>
+          <th>16px Readability</th>
+          <th>Contrast &amp; Weight</th>
+          <th>Recommended Application</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>(a) Outline Mark</strong></td>
+          <td>Moderate. At 16px the 0.88px inner gap between the rupee bars begins to soften on standard resolution screens.</td>
+          <td>High contrast (16.8:1 white on maroon). Crisp at 24px and above.</td>
+          <td><span class="badge-rec">Primary App Header</span> Topbar, Sidebar lockup (28px&ndash;32px), Hero states, Record empty state.</td>
+        </tr>
+        <tr>
+          <td><strong>(b) Filled Bubble Knockout</strong></td>
+          <td><strong>Excellent</strong>. The solid silhouette ensures unmistakable recognition even in 16&times;16 browser tabs.</td>
+          <td>Maximum silhouette density. Rupee cutout punches through sharply.</td>
+          <td><span class="badge-rec">Favicon &amp; App Icon</span> Browser favicon (16px, 32px), touch icons, desktop app shortcuts.</td>
+        </tr>
+        <tr>
+          <td><strong>(c) Two-Tone Mark</strong></td>
+          <td>Fair. The magenta accent on maroon background drops contrast to ~3.2:1 for fine details at 16px.</td>
+          <td>White bubble is prominent, but dark magenta inner stroke is subtle against deep maroon.</td>
+          <td>Marketing pages, large hero graphics (64px+), presentation decks.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>
+

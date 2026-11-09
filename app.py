@@ -102,6 +102,7 @@ def _clear_card():
         "card_qty": None, "card_unit": "kg", "card_price": None,
         "card_type": "sale", "show_card": False,
         "last_audio_hash": None, "pipeline_step": 0,
+        "card_seq": st.session_state.get("card_seq", 0) + 1,
     })
 
 def _fmt_inr(amount: float) -> str:
@@ -128,7 +129,14 @@ def _fmt_inr(amount: float) -> str:
 
 
 def _stepper_html(step: int, lang: str) -> str:
-    """Render the pipeline stepper (0=idle, 1=listen, 2=understand, 3=readback, 4=saved)."""
+    """
+    Render the pipeline stepper:
+      0 = idle (hidden)
+      1 = listening (active)
+      2 = understanding (active)
+      3 = read-back ready / review (steps 1-3 done, awaiting save)
+      4 = saved (all 4 steps completed)
+    """
     labels = [
         t("step_listen",    lang),
         t("step_understand", lang),
@@ -137,15 +145,17 @@ def _stepper_html(step: int, lang: str) -> str:
     ]
     parts = []
     for i, label in enumerate(labels, 1):
-        if i < step:
+        if step == 4:
             cls = "done"
-            dot = "✓"
+        elif step == 3:
+            # Listening, understanding, and readback are done; saving is next/active
+            cls = "done" if i <= 3 else "active"
+        elif i < step:
+            cls = "done"
         elif i == step:
             cls = "active"
-            dot = ""
         else:
             cls = ""
-            dot = ""
         parts.append(
             f'<span class="av-step {cls}">'
             f'  <span class="av-step-dot"></span>'
@@ -355,7 +365,7 @@ if audio_value is not None:
         st.session_state["pipeline_step"] = 2
         parsed = parse(stt_result, lang)
 
-        # Populate card
+        # Populate card (increment card_seq so fresh widgets receive the new values)
         st.session_state.update({
             "parsed":      parsed,
             "transcript":  transcript,
@@ -366,6 +376,7 @@ if audio_value is not None:
             "card_type":   parsed.get("entry_type") or "sale",
             "show_card":   True,
             "pipeline_step": 3,
+            "card_seq":    st.session_state.get("card_seq", 0) + 1,
         })
         st.rerun()
 
@@ -385,12 +396,20 @@ if st.session_state.get("show_card"):
             unsafe_allow_html=True,
         )
 
-    # Needs-review warning
-    if parsed.get("needs_review") and parsed.get("warnings"):
-        warn_text = " · ".join(parsed["warnings"])
+    # Needs-review warning (only if critical fields item, qty, or price are missing)
+    missing_fields = []
+    if not parsed.get("item"):
+        missing_fields.append(t("item", lang))
+    if not parsed.get("quantity"):
+        missing_fields.append(t("qty", lang))
+    if not parsed.get("price"):
+        missing_fields.append(t("price", lang))
+
+    if missing_fields:
+        missing_text = ", ".join(missing_fields)
         st.markdown(
             f'<div class="av-warning">{html.escape(t("needs_review", lang))}'
-            f'<br><small>{html.escape(warn_text)}</small></div>',
+            f'<br><small>{html.escape(missing_text)}</small></div>',
             unsafe_allow_html=True,
         )
 
@@ -412,26 +431,27 @@ if st.session_state.get("show_card"):
     cur_type   = st.session_state["card_type"] or "sale"
     type_idx   = type_opts.index(cur_type) if cur_type in type_opts else 0
 
+    card_seq = st.session_state.get("card_seq", 0)
     col1, col2 = st.columns(2)
     with col1:
         new_item = st.text_input(t("item", lang),
                                  value=st.session_state["card_item"] or "",
-                                 key="edit_item")
+                                 key=f"edit_item_{card_seq}")
         new_qty = st.number_input(t("qty", lang),
                                   min_value=0.0, step=0.5, format="%.2f",
                                   value=float(st.session_state["card_qty"] or 0.0),
-                                  key="edit_qty")
+                                  key=f"edit_qty_{card_seq}")
         new_unit_disp = st.selectbox(t("unit", lang),
                                      options=unit_disp, index=unit_idx,
-                                     key="edit_unit")
+                                     key=f"edit_unit_{card_seq}")
     with col2:
         new_price = st.number_input(t("price", lang),
                                     min_value=0.0, step=0.5, format="%.2f",
                                     value=float(st.session_state["card_price"] or 0.0),
-                                    key="edit_price")
+                                    key=f"edit_price_{card_seq}")
         new_type_disp = st.selectbox(t("type", lang),
                                      options=type_disp, index=type_idx,
-                                     key="edit_type")
+                                     key=f"edit_type_{card_seq}")
 
     new_unit = unit_keys[unit_disp.index(new_unit_disp)]
     new_type = type_opts[type_disp.index(new_type_disp)]
@@ -486,9 +506,9 @@ if st.session_state.get("show_card"):
                         transcript=st.session_state.get("transcript", ""),
                         path=_DB,
                     )
-                    st.session_state["saved_msg"]    = t("saved", lang)
-                    st.session_state["pipeline_step"] = 4
                     _clear_card()
+                    st.session_state["saved_msg"]     = t("saved", lang)
+                    st.session_state["pipeline_step"] = 4
                     st.rerun()
                 except Exception as exc:
                     st.session_state["error_msg"] = t("error_save", lang).replace("{detail}", str(exc))
@@ -498,6 +518,7 @@ if st.session_state.get("show_card"):
         st.markdown('<div class="av-btn-wrong">', unsafe_allow_html=True)
         if st.button(t("wrong", lang), use_container_width=True, key="btn_wrong"):
             _clear_card()
+            st.session_state["pipeline_step"] = 0
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
